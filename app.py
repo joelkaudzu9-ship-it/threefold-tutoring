@@ -449,24 +449,32 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    if current_user.is_admin:
-        return redirect(url_for('admin'))
-
-    enrollments = Enrollment.query.filter_by(user_id=current_user.id, status='active').all()
-    for enrollment in enrollments:
-        enrollment.progress_percentage = calculate_progress(current_user.id, enrollment.subject_id)
-
+    # Detect mobile device
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in [
+        'mobile', 'android', 'iphone', 'ipad', 'ipod', 
+        'blackberry', 'windows phone', 'webos', 'opera mini'
+    ])
+    
+    # Get user data
+    enrollments = Enrollment.query.filter_by(user_id=current_user.id).all()
     payment = Payment.query.filter_by(
         user_id=current_user.id,
-        status='completed'
+        status='active'
     ).order_by(Payment.created_at.desc()).first()
-
-    available_subjects = Subject.query.filter_by(is_active=True).all()
-
+    
+    available_subjects = Subject.query.all()
+    
+    # Calculate progress for each enrollment
+    for enrollment in enrollments:
+        # Your progress calculation logic here
+        enrollment.progress_percentage = calculate_progress(enrollment)
+    
     return render_template('dashboard.html',
-                           enrollments=enrollments,
-                           payment=payment,
-                           available_subjects=available_subjects)
+                         enrollments=enrollments,
+                         payment=payment,
+                         available_subjects=available_subjects,
+                         is_mobile=is_mobile)
 
 
 @app.route('/subjects')
