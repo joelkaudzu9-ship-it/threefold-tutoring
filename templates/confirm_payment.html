@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Payment - THREE FOLD VENTURES</title>
+    <style>
+        .payment-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .reference-box {
+            background: #1e40af;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .steps {
+            margin: 20px 0;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #1e40af;
+            background: #f0f9ff;
+        }
+    </style>
+</head>
+<body>
+    <h2>Complete Your Payment</h2>
+
+    <div class="payment-details">
+        <h3>Payment Details:</h3>
+        <p><strong>Amount:</strong> {{ payment.amount|format }} MWK</p>
+        <p><strong>Duration:</strong> {{ payment.weeks }} week(s)</p>
+        <p><strong>Method:</strong> {{ payment.payment_method }}</p>
+
+        <div class="reference-box">
+            <strong>REFERENCE:</strong> {{ payment.transaction_id }}
+        </div>
+
+        <p><em>IMPORTANT: Include this reference when making payment</em></p>
+    </div>
+
+    <div class="steps">
+        <h3>How to Complete Payment:</h3>
+
+        <div class="step">
+            <strong>Step 1:</strong> Follow the payment instructions for {{ payment.payment_method }}
+        </div>
+
+        <div class="step">
+            <strong>Step 2:</strong> When prompted for "Reference" or "Account Number", enter:
+            <div style="background: #e9ecef; padding: 10px; margin: 5px 0; font-family: monospace;">
+                {{ payment.transaction_id }}
+            </div>
+        </div>
+
+        <div class="step">
+            <strong>Step 3:</strong> Take a screenshot of successful payment
+        </div>
+
+        <div class="step">
+            <strong>Step 4:</strong> Upload proof below
+        </div>
+    </div>
+
+    <h3>Upload Payment Proof</h3>
+    <form action="{{ url_for('submit_payment_proof', transaction_id=payment.transaction_id) }}"
+          method="POST" enctype="multipart/form-data">
+        <input type="file" name="payment_proof" accept="image/*,.pdf" required>
+        <p><small>Upload screenshot or receipt (JPG, PNG, PDF)</small></p>
+        <button type="submit">Submit Proof</button>
+    </form>
+
+    <p><a href="{{ url_for('dashboard') }}">I'll do this later</a></p>
+</body>
+</html>

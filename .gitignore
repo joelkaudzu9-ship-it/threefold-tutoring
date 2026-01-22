@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+venv/
+instance/
+*.db
+*.sqlite3
+static/uploads/
+uploads/
+.DS_Store
+.idea/
+*.iml
+TFV-tutoring/

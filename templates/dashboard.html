@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        /* Navigation */
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.2rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 1.5rem; }
+
+        /* Dashboard Layout */
+        .dashboard { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+
+        /* Sidebar */
+        .sidebar { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .user-profile { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
+        .user-avatar { background: #1e40af; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; }
+        .user-profile h3 { color: #1e3a8a; margin-bottom: 0.5rem; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 1rem; color: #4b5563; text-decoration: none; border-radius: 8px; margin: 0.5rem 0; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: #eff6ff; color: #1e40af; }
+
+        /* Main Content */
+        .main-content { background: white; border-radius: 10px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+        /* Cards */
+        .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .stat-card { background: #eff6ff; padding: 1.5rem; border-radius: 8px; border-left: 5px solid #1e40af; }
+        .stat-card h3 { color: #1e3a8a; margin-bottom: 0.5rem; }
+
+        /* Subjects Grid */
+        .subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .subject-enrollment-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; position: relative; }
+        .subject-enrollment-card h3 { color: #1e3a8a; margin-bottom: 1rem; }
+        .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; margin: 1rem 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: #10b981; border-radius: 4px; }
+
+        /* Payment Status */
+        .payment-status { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+        .status-active { color: #10b981; font-weight: bold; }
+        .status-inactive { color: #ef4444; font-weight: bold; }
+
+        /* Quick Actions */
+        .quick-actions { display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+        .action-btn { background: #1e40af; color: white; padding: 0.75rem 1.5rem; border-radius: 5px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .action-btn.secondary { background: #f3f4f6; color: #1e3a8a; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/"><i class="fas fa-home"></i> Home</a>
+                <a href="/subjects"><i class="fas fa-book"></i> Subjects</a>
+                <a href="/pricing"><i class="fas fa-tag"></i> Pricing</a>
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ current_user.name[0] if current_user.name else 'S' }}
+                </div>
+                <h3>{{ current_user.name or 'Student' }}</h3>
+                <p>{{ current_user.email }}</p>
+                {% if current_user.student_id %}
+                <p><small>ID: {{ current_user.student_id }}</small></p>
+                {% endif %}
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/profile">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+                <a href="/subjects">
+                    <i class="fas fa-book-open"></i> All Subjects
+                </a>
+                <a href="/pricing">
+                    <i class="fas fa-credit-card"></i> Make Payment
+                </a>
+                <a href="#">
+                    <i class="fas fa-chart-line"></i> Progress Report
+                </a>
+                <a href="#">
+                    <i class="fas fa-question-circle"></i> Help & Support
+                </a>
+            </nav>
+
+            <!-- Payment Status -->
+            <div class="payment-status">
+                <h4><i class="fas fa-info-circle"></i> Access Status</h4>
+                {% if payment %}
+                    <p class="status-active">✅ Active until {{ payment.end_date.strftime('%d %b %Y') }}</p>
+                    <p><small>Paid: {{ payment.amount }} MWK for {{ payment.weeks }} week(s)</small></p>
+                {% else %}
+                    <p class="status-inactive">❌ No active payment</p>
+                    <p><small><a href="/pricing" style="color: #1e40af;">Click here to pay</a></small></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>Welcome to Your Learning Dashboard</h1>
+            <p>Track your progress and continue your learning journey</p>
+
+            <!-- Quick Stats -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h3>{{ enrollments|length }}</h3>
+                    <p>Enrolled Subjects</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ payment.weeks if payment else 0 }}</h3>
+                    <p>Weeks Paid</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ available_subjects|length }}</h3>
+                    <p>Available Subjects</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="/payment-options" class="action-btn">
+                    <i class="fas fa-credit-card"></i> Make Payment
+                </a>
+                <a href="/subjects" class="action-btn secondary">
+                    <i class="fas fa-plus-circle"></i> Enroll New Subject
+                </a>
+                <a href="/profile" class="action-btn secondary">
+                    <i class="fas fa-user-edit"></i> Update Profile
+                </a>
+            </div>
+
+            <!-- My Subjects -->
+            <h2>My Enrolled Subjects</h2>
+            {% if enrollments %}
+            <div class="subjects-grid">
+                {% for enrollment in enrollments %}
+                <div class="subject-enrollment-card" style="border-left: 5px solid {{ enrollment.subject.color }};">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <h3>{{ enrollment.subject.name }}</h3>
+                        <span style="background: {{ enrollment.subject.color }}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                            {{ enrollment.subject.code }}
+                        </span>
+                    </div>
+                    <p>{{ enrollment.subject.description[:100] }}...</p>
+
+                    <!-- Progress -->
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Progress</span>
+                            <span>{{ enrollment.progress_percentage }}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ enrollment.progress_percentage }}%"></div>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('subject_detail', subject_id=enrollment.subject.id) }}"
+                       style="background: {{ enrollment.subject.color }}; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; display: inline-block;">
+                       Continue Learning →
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 3rem; background: #f9fafb; border-radius: 10px; margin: 2rem 0;">
+                <i class="fas fa-book" style="font-size: 3rem; color: #9ca3af; margin-bottom: 1rem;"></i>
+                <h3>No Enrolled Subjects</h3>
+                <p>You haven't enrolled in any subjects yet.</p>
+                <a href="/subjects" style="background: #1e40af; color: white; padding: 0.75rem 1.5rem; border-radius: 5px; text-decoration: none; display: inline-block; margin-top: 1rem;">
+                    Browse Subjects
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Available Subjects -->
+            <h2 style="margin-top: 3rem;">Available Subjects</h2>
+            <div class="subjects-grid">
+                {% for subject in available_subjects if subject.id not in enrollments|map(attribute='subject_id') %}
+                <div class="subject-enrollment-card" style="border: 2px dashed #e5e7eb;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                        <div style="background: {{ subject.color }}; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="{{ subject.icon }}"></i>
+                        </div>
+                        <h3>{{ subject.name }}</h3>
+                    </div>
+                    <p>{{ subject.description[:80] }}...</p>
+
+                    {% if payment %}
+                    <a href="{{ url_for('enroll', subject_id=subject.id) }}"
+                       style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; display: inline-block; margin-top: 1rem;">
+                       Enroll Now
+                    </a>
+                    {% else %}
+                    <p style="color: #ef4444; font-size: 0.9rem;">
+                        <i class="fas fa-lock"></i> Make payment to enroll
+                    </p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

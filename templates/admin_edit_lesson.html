@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Lesson - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+        .admin-container { max-width: 800px; margin: 2rem auto; padding: 0 2rem; }
+        .form-card { background: white; border-radius: 10px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #4b5563; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary { background: #10b981; color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES ADMIN</div>
+            </div>
+            <div class="nav-links">
+                <span style="color: #fbbf24;"><i class="fas fa-user-shield"></i> {{ current_user.email }}</span>
+                <a href="/admin">Dashboard</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div style="margin-bottom: 2rem;">
+            <a href="{{ url_for('admin_lessons') }}" style="color: #1e40af; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to Lessons
+            </a>
+        </div>
+
+        <div class="form-card">
+            <h1 style="margin-bottom: 2rem; color: #1e3a8a;">Edit Lesson: {{ lesson.title }}</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('edit_lesson', lesson_id=lesson.id) }}">
+                <div class="form-group">
+                    <label>Subject *</label>
+                    <select name="subject_id" required>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if subject.id == lesson.subject_id %}selected{% endif %}>
+                            {{ subject.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Lesson Title *</label>
+                    <input type="text" name="title" value="{{ lesson.title }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea name="description" required>{{ lesson.description }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Week Number *</label>
+                    <input type="number" name="week_number" value="{{ lesson.week_number }}" min="1" max="52" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Day Number *</label>
+                    <input type="number" name="day_number" value="{{ lesson.day_number }}" min="1" max="7" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Content Type *</label>
+                    <select name="content_type" required>
+                        <option value="video" {% if lesson.content_type == 'video' %}selected{% endif %}>Video</option>
+                        <option value="pdf" {% if lesson.content_type == 'pdf' %}selected{% endif %}>PDF</option>
+                        <option value="audio" {% if lesson.content_type == 'audio' %}selected{% endif %}>Audio</option>
+                        <option value="text" {% if lesson.content_type == 'text' %}selected{% endif %}>Text</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>External URL (for videos)</label>
+                    <input type="url" name="external_url" value="{{ lesson.external_url or '' }}" placeholder="https://www.youtube.com/embed/...">
+                </div>
+
+                <div class="form-group">
+                    <label>Duration (minutes) *</label>
+                    <input type="number" name="duration" value="{{ lesson.duration or 30 }}" min="1" max="240" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Order in Day</label>
+                    <input type="number" name="order" value="{{ lesson.order or 1 }}" min="1" max="10">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_published" {% if lesson.is_published %}checked{% endif %}>
+                        Published
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{{ url_for('admin_lessons') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

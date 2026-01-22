@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bursary Application - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        /* Navigation */
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e3a8a; padding: 3rem 2rem; text-align: center; }
+
+        /* Application Form */
+        .application-container { max-width: 800px; margin: 3rem auto; padding: 0 2rem; }
+
+        .form-card { background: white; border-radius: 10px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #1e3a8a; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 5px; font-size: 1rem; }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .required::after { content: " *"; color: #ef4444; }
+
+        .bursary-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .bursary-type { border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; }
+        .bursary-type:hover, .bursary-type.selected { border-color: #fbbf24; background: #fef3c7; }
+        .bursary-type i { font-size: 2rem; margin-bottom: 1rem; }
+
+        .btn-submit { background: #1e3a8a; color: white; padding: 1rem 2rem; border-radius: 5px; border: none; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 2rem; }
+
+        .eligibility-criteria { background: #eff6ff; border-radius: 8px; padding: 1.5rem; margin: 2rem 0; }
+
+        @media (max-width: 768px) {
+            .bursary-types { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/payment-options">Payment Options</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Three Fold Bursary Application</h1>
+        <p>Scholarship program for eligible students</p>
+    </div>
+
+    <div class="application-container">
+        <!-- Eligibility Criteria -->
+        <div class="eligibility-criteria">
+            <h3 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fas fa-clipboard-check"></i> Eligibility Criteria</h3>
+            <ul style="margin-left: 1.5rem; color: #4b5563;">
+                <li>Must be a Malawian citizen</li>
+                <li>Must have demonstrated academic excellence</li>
+                <li>Must come from financially disadvantaged background</li>
+                <li>Must provide supporting documents</li>
+                <li>Must maintain minimum 75% attendance rate</li>
+                <li>Must complete weekly assignments</li>
+            </ul>
+        </div>
+
+        <!-- Application Form -->
+        <div class="form-card">
+            <form action="/submit-bursary" method="POST">
+                <h2 style="color: #1e3a8a; margin-bottom: 2rem;">Bursary Application Form</h2>
+
+                <!-- Personal Information -->
+                <div class="form-group">
+                    <label for="full_name" class="required">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" value="{{ current_user.name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="required">Email Address</label>
+                    <input type="email" id="email" name="email" value="{{ current_user.email }}" required readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="required">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" value="{{ current_user.phone }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="student_id" class="required">Student ID/Registration Number</label>
+                    <input type="text" id="student_id" name="student_id" value="{{ current_user.student_id }}" required>
+                </div>
+
+                <!-- Bursary Type -->
+                <div class="form-group">
+                    <label class="required">Bursary Type</label>
+                    <div class="bursary-types">
+                        <div class="bursary-type" onclick="selectBursaryType('full')">
+                            <i class="fas fa-graduation-cap" style="color: #10b981;"></i>
+                            <h4>Full Bursary</h4>
+                            <p>100% fees covered</p>
+                            <input type="radio" name="bursary_type" value="full" style="display: none;">
+                        </div>
+                        <div class="bursary-type" onclick="selectBursaryType('partial')">
+                            <i class="fas fa-hand-holding-usd" style="color: #f59e0b;"></i>
+                            <h4>Partial Bursary</h4>
+                            <p>50% fees covered</p>
+                            <input type="radio" name="bursary_type" value="partial" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guardian Information -->
+                <div class="form-group">
+                    <label for="guardian_name" class="required">Guardian/Parent Name</label>
+                    <input type="text" id="guardian_name" name="guardian_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="guardian_phone" class="required">Guardian Phone Number</label>
+                    <input type="tel" id="guardian_phone" name="guardian_phone" required>
+                </div>
+
+                <!-- Documents -->
+                <div class="form-group">
+                    <label>Required Documents</label>
+                    <div style="background: #f9fafb; padding: 1rem; border-radius: 5px;">
+                        <p><input type="checkbox" required> National ID/Birth Certificate</p>
+                        <p><input type="checkbox" required> School Report/Transcript</p>
+                        <p><input type="checkbox" required> Recommendation Letter</p>
+                        <p><input type="checkbox" required> Proof of Income (Parents/Guardians)</p>
+                    </div>
+                </div>
+
+                <!-- Reason for Application -->
+                <div class="form-group">
+                    <label for="reason" class="required">Why do you need this bursary?</label>
+                    <textarea id="reason" name="reason" required placeholder="Explain your financial situation and why you deserve this bursary..."></textarea>
+                </div>
+
+                <!-- Declaration -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: start;">
+                        <input type="checkbox" required style="margin-right: 10px; margin-top: 5px;">
+                        <span>I declare that all information provided is true and accurate. I understand that providing false information will lead to immediate disqualification and legal action.</span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Submit Application
+                </button>
+            </form>
+        </div>
+
+        <!-- Process Information -->
+        <div style="text-align: center; margin-top: 2rem; color: #6b7280;">
+            <p><i class="fas fa-info-circle"></i> Applications are reviewed within 5 working days</p>
+            <p>You will receive email/SMS notification of the outcome</p>
+        </div>
+    </div>
+
+    <script>
+        function selectBursaryType(type) {
+            // Remove selected class from all
+            document.querySelectorAll('.bursary-type').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            // Add selected class to clicked
+            event.currentTarget.classList.add('selected');
+
+            // Set radio button value
+            const radio = event.currentTarget.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+            }
+        }
+
+        // Auto-select first bursary type
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstType = document.querySelector('.bursary-type');
+            if (firstType) {
+                firstType.click();
+            }
+        });
+    </script>
+</body>
+</html>

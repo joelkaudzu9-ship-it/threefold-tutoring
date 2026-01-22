@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject.name }} - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        /* Navigation */
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+
+        /* Subject Header */
+        .subject-header {
+            background: linear-gradient(135deg, {{ subject.color }}80 0%, {{ subject.color }} 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .subject-header-content { max-width: 800px; margin: 0 auto; }
+        .subject-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .subject-header h1 { font-size: 3rem; margin-bottom: 1rem; }
+
+        /* Subject Content */
+        .subject-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+
+        /* Demo Video Preview */
+        .demo-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .video-preview {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .video-container {
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .preview-info h4 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .preview-features {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Access Warning */
+        .access-warning {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        /* Weeks Grid */
+        .weeks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 3rem 0; }
+        .week-card { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .week-card h3 { color: #1e3a8a; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid {{ subject.color }}; }
+
+        /* Lessons List */
+        .lessons-list { list-style: none; }
+        .lesson-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f9fafb;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .lesson-item:hover { background: #f3f4f6; transform: translateX(5px); }
+        .lesson-info { flex: 1; }
+        .lesson-title { font-weight: 600; color: #1e3a8a; }
+        .lesson-meta { display: flex; gap: 1rem; color: #6b7280; font-size: 0.9rem; margin-top: 0.25rem; }
+        .lesson-actions a {
+            background: {{ subject.color }};
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Enroll Button */
+        .enroll-section { text-align: center; margin: 3rem 0; }
+        .btn-enroll {
+            background: {{ subject.color }};
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* Subject Description */
+        .subject-description {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Progress */
+        .progress-section { background: white; border-radius: 10px; padding: 2rem; margin: 2rem 0; }
+        .progress-bar { height: 10px; background: #e5e7eb; border-radius: 5px; margin: 1rem 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: #10b981; border-radius: 5px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .subject-header h1 { font-size: 2rem; }
+            .video-preview { grid-template-columns: 1fr; }
+            .lesson-item { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .lesson-actions { align-self: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/subjects">Subjects</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Subject Header -->
+    <div class="subject-header">
+        <div class="subject-header-content">
+            <div class="subject-icon">
+                <i class="{{ subject.icon }}"></i>
+            </div>
+            <h1>{{ subject.name }}</h1>
+            <p>{{ subject.description }}</p>
+            <p style="margin-top: 1rem; opacity: 0.9;">Subject Code: {{ subject.code }}</p>
+        </div>
+    </div>
+
+    <div class="subject-container">
+        <!-- Demo Video Preview -->
+        <div class="demo-preview">
+            <h3><i class="fas fa-play-circle"></i> Subject Preview</h3>
+            <p>Watch a sample lesson to see what you'll learn in {{ subject.name }}:</p>
+
+            <div class="video-preview">
+                <div class="video-container">
+                    <iframe
+                        src="{{ demo_video }}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="width: 100%; height: 100%; border-radius: 8px;"
+                    ></iframe>
+                </div>
+                <div class="preview-info">
+                    <h4>Sample Lesson: {{ subject.name }} Introduction</h4>
+                    <p>This preview shows the quality of our video lessons and teaching style.</p>
+                    <div class="preview-features">
+                        <span><i class="fas fa-check" style="color: {{ subject.color }};"></i> HD Quality</span>
+                        <span><i class="fas fa-check" style="color: {{ subject.color }};"></i> Expert Instruction</span>
+                        <span><i class="fas fa-check" style="color: {{ subject.color }};"></i> Clear Explanations</span>
+                        <span><i class="fas fa-check" style="color: {{ subject.color }};"></i> Practical Examples</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Warning -->
+        {% if not can_access %}
+        <div class="access-warning">
+            <h3><i class="fas fa-lock"></i> Access Required</h3>
+            <p>You need to enroll in this subject and have an active payment to access the lessons.</p>
+            <div style="margin-top: 1rem;">
+                {% if not enrollment %}
+                    <a href="{{ url_for('enroll', subject_id=subject.id) }}" class="btn-enroll">
+                        <i class="fas fa-book"></i> Enroll in {{ subject.name }}
+                    </a>
+                {% else %}
+                    <p>You are enrolled! Please make a payment to continue.</p>
+                    <a href="/payment-options" class="btn-enroll">
+                        <i class="fas fa-credit-card"></i> Make Payment
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <h3>Your Progress</h3>
+            <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                <span>Overall Progress</span>
+                <span>25%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 25%"></div>
+            </div>
+            <p><small>Complete lessons to track your progress</small></p>
+        </div>
+        {% endif %}
+
+        <!-- Subject Description -->
+        <div class="subject-description">
+            <h2>About This Subject</h2>
+            <p>{{ subject.description }}</p>
+            <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <h4><i class="fas fa-video" style="color: {{ subject.color }};"></i> Video Lessons</h4>
+                    <p>High-quality video tutorials for each topic</p>
+                </div>
+                <div>
+                    <h4><i class="fas fa-file-pdf" style="color: {{ subject.color }};"></i> Study Materials</h4>
+                    <p>Downloadable notes, worksheets, and exercises</p>
+                </div>
+                <div>
+                    <h4><i class="fas fa-check-circle" style="color: {{ subject.color }};"></i> Assessments</h4>
+                    <p>Weekly quizzes and practice tests</p>
+                </div>
+                <div>
+                    <h4><i class="fas fa-chart-line" style="color: {{ subject.color }};"></i> Progress Tracking</h4>
+                    <p>Monitor your learning journey</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lessons by Week -->
+        <h2 style="color: #1e3a8a; margin: 3rem 0 1.5rem;">Course Structure (4 Weeks)</h2>
+        <div class="weeks-grid">
+            {% for week_title, week_lessons in lessons_by_week.items() %}
+            <div class="week-card">
+                <h3>{{ week_title }}</h3>
+                <ul class="lessons-list">
+                    {% for lesson in week_lessons %}
+                    <li class="lesson-item">
+                        <div class="lesson-info">
+                            <div class="lesson-title">{{ lesson.title }}</div>
+                            <div class="lesson-meta">
+                                <span><i class="fas fa-clock"></i> {{ lesson.duration }} min</span>
+                                <span><i class="fas fa-play-circle"></i> Video</span>
+                            </div>
+                        </div>
+                        <div class="lesson-actions">
+                            {% if can_access %}
+                                <a href="{{ url_for('view_lesson', lesson_id=lesson.id) }}">
+                                    <i class="fas fa-play"></i> Start
+                                </a>
+                            {% else %}
+                                <a href="#" style="background: #9ca3af; cursor: not-allowed;">
+                                    <i class="fas fa-lock"></i> Locked
+                                </a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Enroll/Continue Section -->
+        <div class="enroll-section">
+            {% if not enrollment %}
+                <a href="{{ url_for('enroll', subject_id=subject.id) }}" class="btn-enroll">
+                    <i class="fas fa-book-open"></i> Enroll in {{ subject.name }}
+                </a>
+                <p style="margin-top: 1rem; color: #6b7280;">Enroll to start learning</p>
+            {% elif not can_access %}
+                <a href="/payment-options" class="btn-enroll">
+                    <i class="fas fa-credit-card"></i> Make Payment to Access
+                </a>
+                <p style="margin-top: 1rem; color: #6b7280;">You are enrolled. Payment required to access lessons.</p>
+            {% else %}
+                <a href="{{ url_for('view_lesson', lesson_id=lessons_by_week['Week 1'][0].id) if lessons_by_week else '#' }}" class="btn-enroll">
+                    <i class="fas fa-play-circle"></i> Continue Learning
+                </a>
+                <p style="margin-top: 1rem; color: #6b7280;">Start with the first lesson</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

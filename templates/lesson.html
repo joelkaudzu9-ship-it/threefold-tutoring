@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lesson.title }} - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        /* Navigation */
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+        .nav-links a:hover { color: #fbbf24; }
+
+        /* Main Container */
+        .lesson-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+
+        /* Breadcrumb */
+        .breadcrumb { margin-bottom: 2rem; }
+        .breadcrumb a { color: #1e40af; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        /* Lesson Header */
+        .lesson-header { background: white; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .lesson-title h1 { color: #1e3a8a; margin-bottom: 1rem; }
+        .lesson-meta { display: flex; gap: 2rem; color: #6b7280; margin-bottom: 1rem; }
+        .meta-item { display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-description { color: #4b5563; line-height: 1.6; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
+
+        /* Content Container */
+        .content-container { background: white; border-radius: 10px; padding: 0; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+
+        /* Video Container */
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+        .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* Audio Container */
+        .audio-container { padding: 3rem 2rem; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); text-align: center; }
+        .audio-container audio { width: 100%; max-width: 600px; margin: 0 auto; }
+        .audio-icon { font-size: 4rem; color: white; margin-bottom: 1rem; }
+        .audio-title { color: white; font-size: 1.5rem; margin-bottom: 1rem; }
+
+        /* PDF Container */
+        .pdf-container { height: 700px; }
+        .pdf-container iframe { width: 100%; height: 100%; border: none; }
+        .pdf-download { background: #f9fafb; padding: 1.5rem; text-align: center; border-top: 1px solid #e5e7eb; }
+
+        /* Document Container */
+        .document-container { padding: 4rem 2rem; text-align: center; background: #f9fafb; }
+        .document-icon { font-size: 5rem; color: #1e40af; margin-bottom: 1rem; }
+        .document-info h3 { color: #1e3a8a; margin-bottom: 0.5rem; }
+        .document-info p { color: #6b7280; margin-bottom: 2rem; }
+
+        /* Fallback Container */
+        .fallback-container { padding: 4rem 2rem; text-align: center; background: #fef3c7; color: #92400e; }
+
+        /* Lesson Navigation */
+        .lesson-navigation { display: flex; justify-content: space-between; background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 2rem; }
+        .nav-btn { padding: 0.75rem 1.5rem; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; color: #374151; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s; }
+        .nav-btn:hover { border-color: #1e40af; color: #1e40af; }
+        .nav-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+        .nav-btn.disabled:hover { border-color: #e5e7eb; color: #374151; }
+
+        /* Progress Section */
+        .progress-section { background: white; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .progress-bar { height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden; margin: 1rem 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 5px; width: {{ progress.percentage }}%; }
+        .progress-stats { display: flex; justify-content: space-between; color: #6b7280; font-size: 0.875rem; }
+
+        /* Buttons */
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 500; transition: all 0.3s; }
+        .btn-primary { background: #10b981; color: white; }
+        .btn-primary:hover { background: #059669; }
+        .btn-secondary { background: #3b82f6; color: white; }
+        .btn-secondary:hover { background: #2563eb; }
+        .btn-outline { background: white; border: 2px solid #1e40af; color: #1e40af; }
+        .btn-outline:hover { background: #1e40af; color: white; }
+
+        /* Status Badges */
+        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .status-not-started { background: #e5e7eb; color: #6b7280; }
+
+        /* Course Info */
+        .course-info { background: white; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .course-info h3 { color: #1e3a8a; margin-bottom: 1rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .info-item { display: flex; align-items: center; gap: 0.75rem; }
+        .info-icon { width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #1e40af; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+            .nav-links a { margin-left: 0; }
+            .lesson-meta { flex-direction: column; gap: 0.5rem; }
+            .lesson-navigation { flex-direction: column; gap: 1rem; }
+            .nav-btn { width: 100%; justify-content: center; }
+            .pdf-container { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/"><i class="fas fa-home"></i> Home</a>
+                <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="/subjects"><i class="fas fa-book"></i> Subjects</a>
+                <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="lesson-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a> &gt;
+            <a href="/subject/{{ lesson.subject_id }}">{{ lesson.subject.name }}</a> &gt;
+            <span>{{ lesson.title }}</span>
+        </div>
+
+        <!-- Lesson Header -->
+        <div class="lesson-header">
+            <div class="lesson-title">
+                <h1>{{ lesson.title }}</h1>
+                <div class="lesson-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-book" style="color: {{ lesson.subject.color }};"></i>
+                        <span>{{ lesson.subject.name }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Week {{ lesson.week_number }}, Day {{ lesson.day_number }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ lesson.duration }} minutes</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-{{ 'video' if lesson.content_type == 'video' or lesson.content_type == 'youtube' else 'file-pdf' if lesson.content_type == 'pdf' else 'podcast' if lesson.content_type == 'audio' else 'file-word' }}"></i>
+                        <span>{{ lesson.content_type|capitalize }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lesson-description">
+                <p>{{ lesson.description }}</p>
+            </div>
+        </div>
+
+        <!-- Lesson Content -->
+        <div class="content-container">
+            {% if content.type == 'youtube' %}
+            <!-- YouTube Video -->
+            <div class="video-container">
+                <iframe src="{{ content.url }}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            {% elif content.type == 'video' %}
+            <!-- Local Video -->
+            <div class="video-container">
+                <video controls>
+                    <source src="{{ content.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            {% elif content.type == 'audio' %}
+            <!-- Audio File -->
+            <div class="audio-container">
+                <div class="audio-icon">
+                    <i class="fas fa-podcast"></i>
+                </div>
+                <div class="audio-title">
+                    {{ lesson.title }}
+                </div>
+                <audio controls>
+                    <source src="{{ content.url }}" type="audio/mp3">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            {% elif content.type == 'pdf' %}
+            <!-- PDF File -->
+            <div class="pdf-container">
+                <iframe src="{{ content.url }}"></iframe>
+                <div class="pdf-download">
+                    <a href="{{ content.url }}" target="_blank" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    <a href="{{ content.url }}" target="_blank" class="btn btn-outline" style="margin-left: 1rem;">
+                        <i class="fas fa-external-link-alt"></i> Open in New Tab
+                    </a>
+                </div>
+            </div>
+
+            {% elif content.type == 'document' %}
+            <!-- Document File -->
+            <div class="document-container">
+                <div class="document-icon">
+                    <i class="fas fa-file-word"></i>
+                </div>
+                <div class="document-info">
+                    <h3>{{ content.filename }}</h3>
+                    <p>Document file for {{ lesson.title }}</p>
+                    <a href="{{ content.url }}" download class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download Document
+                    </a>
+                    <a href="/subject/{{ lesson.subject_id }}" class="btn btn-outline" style="margin-left: 1rem;">
+                        <i class="fas fa-arrow-left"></i> Back to Subject
+                    </a>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Fallback Content -->
+            <div class="fallback-container">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h3>Content Not Available</h3>
+                <p>This lesson content is currently unavailable.</p>
+                <a href="/subject/{{ lesson.subject_id }}" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-arrow-left"></i> Return to Subject
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <h3>Your Progress</h3>
+                {% if progress.completed %}
+                <span class="status-badge status-completed">Completed</span>
+                {% elif progress.percentage > 0 %}
+                <span class="status-badge status-in-progress">In Progress</span>
+                {% else %}
+                <span class="status-badge status-not-started">Not Started</span>
+                {% endif %}
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+
+            <div class="progress-stats">
+                <span>Progress: {{ progress.percentage }}%</span>
+                <span>Last updated: {{ progress.updated_at.strftime('%Y-%m-%d %H:%M') if progress.updated_at else 'Never' }}</span>
+            </div>
+
+            <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                {% if not progress.completed %}
+                <a href="{{ url_for('mark_complete', lesson_id=lesson.id) }}" class="btn btn-primary">
+                    <i class="fas fa-check-circle"></i> Mark as Complete
+                </a>
+                {% else %}
+                <button class="btn btn-secondary" disabled>
+                    <i class="fas fa-check-circle"></i> Already Completed
+                </button>
+                {% endif %}
+
+                <a href="/subject/{{ lesson.subject_id }}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Back to Subject
+                </a>
+            </div>
+        </div>
+
+        <!-- Lesson Navigation -->
+        <div class="lesson-navigation">
+            {% if prev_lesson %}
+            <a href="{{ url_for('view_lesson', lesson_id=prev_lesson.id) }}" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Previous Lesson
+            </a>
+            {% else %}
+            <span class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i> Previous Lesson
+            </span>
+            {% endif %}
+
+            <div style="text-align: center;">
+                <span style="color: #6b7280; font-size: 0.875rem;">Lesson {{ lesson.order }} of {{ total_lessons }}</span>
+            </div>
+
+            {% if next_lesson %}
+            <a href="{{ url_for('view_lesson', lesson_id=next_lesson.id) }}" class="nav-btn">
+                Next Lesson <i class="fas fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <span class="nav-btn disabled">
+                Next Lesson <i class="fas fa-arrow-right"></i>
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Course Information -->
+        <div class="course-info">
+            <h3><i class="fas fa-info-circle"></i> Course Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <strong>Subject</strong>
+                        <p>{{ lesson.subject.name }}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <strong>Duration</strong>
+                        <p>{{ lesson.duration }} minutes</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div>
+                        <strong>Schedule</strong>
+                        <p>Week {{ lesson.week_number }}, Day {{ lesson.day_number }}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas {{ 'fa-video' if lesson.content_type == 'video' or lesson.content_type == 'youtube' else 'fa-file-pdf' if lesson.content_type == 'pdf' else 'fa-podcast' if lesson.content_type == 'audio' else 'fa-file-word' }}"></i>
+                    </div>
+                    <div>
+                        <strong>Content Type</strong>
+                        <p>{{ lesson.content_type|capitalize }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-mark progress for video/audio
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.querySelector('video');
+            const audio = document.querySelector('audio');
+
+            // Update progress for video
+            if (video) {
+                video.addEventListener('timeupdate', function() {
+                    const percentage = (video.currentTime / video.duration) * 100;
+                    if (percentage > 90 && !{{ 'true' if progress.completed else 'false' }}) {
+                        // Auto-mark as complete when 90% watched
+                        fetch('{{ url_for("mark_complete", lesson_id=lesson.id) }}')
+                            .then(response => {
+                                if (response.ok) {
+                                    location.reload();
+                                }
+                            });
+                    }
+                });
+            }
+
+            // Update progress for audio
+            if (audio) {
+                audio.addEventListener('timeupdate', function() {
+                    const percentage = (audio.currentTime / audio.duration) * 100;
+                    if (percentage > 90 && !{{ 'true' if progress.completed else 'false' }}) {
+                        fetch('{{ url_for("mark_complete", lesson_id=lesson.id) }}')
+                            .then(response => {
+                                if (response.ok) {
+                                    location.reload();
+                                }
+                            });
+                    }
+                });
+            }
+
+            // Track time spent on page (for reading materials)
+            let startTime = new Date();
+            let timeSpent = 0;
+
+            window.addEventListener('beforeunload', function() {
+                const endTime = new Date();
+                timeSpent = (endTime - startTime) / 1000; // in seconds
+
+                // If spent more than lesson duration * 0.8 (80% of estimated time)
+                const lessonDurationSeconds = {{ lesson.duration }} * 60;
+                if (timeSpent > lessonDurationSeconds * 0.8 && !{{ 'true' if progress.completed else 'false' }}) {
+                    // Send beacon to mark as complete
+                    navigator.sendBeacon('{{ url_for("mark_complete", lesson_id=lesson.id) }}');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

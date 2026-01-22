@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Options - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        /* Navigation */
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 3rem 2rem; text-align: center; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+
+        /* Payment Options */
+        .payment-container { max-width: 1200px; margin: 3rem auto; padding: 0 2rem; }
+
+        .weeks-selector { background: white; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
+        .weeks-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+        .week-btn { padding: 1rem 2rem; border: 2px solid #1e40af; border-radius: 8px; background: white; color: #1e40af; font-weight: bold; cursor: pointer; }
+        .week-btn:hover, .week-btn.active { background: #1e40af; color: white; }
+
+        .payment-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .payment-card { background: white; border-radius: 10px; padding: 2rem; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .payment-card:hover { transform: translateY(-5px); }
+        .payment-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .payment-card h3 { margin-bottom: 1rem; color: #1e3a8a; }
+        .payment-details { margin: 1.5rem 0; text-align: left; }
+        .payment-details p { margin: 0.5rem 0; color: #4b5563; }
+        .btn-pay {
+            background: #1e40af;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn-pay:hover { background: #1e3a8a; }
+
+        .bursary-card { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e3a8a; }
+        .bursary-card .btn-pay { background: #1e3a8a; color: white; }
+
+        /* Current Selection */
+        .selection-info { background: #eff6ff; border: 2px solid #1e40af; border-radius: 10px; padding: 1.5rem; margin: 2rem 0; text-align: center; }
+        .selection-info h3 { color: #1e3a8a; margin-bottom: 0.5rem; }
+
+        /* How it works */
+        .how-it-works { max-width: 800px; margin: 3rem auto; padding: 2rem; background: white; border-radius: 10px; }
+        .steps { display: flex; justify-content: space-between; margin: 2rem 0; }
+        .step { text-align: center; flex: 1; padding: 1rem; }
+        .step-number { background: #1e40af; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; }
+
+        /* Price display */
+        .price-display { font-size: 1.2rem; color: #1e40af; font-weight: bold; margin: 10px 0; }
+
+        @media (max-width: 768px) {
+            .steps { flex-direction: column; }
+            .week-btn { width: 100%; }
+            .payment-methods { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/subjects">Subjects</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Make Payment</h1>
+        <p>Select payment duration and choose your preferred payment method</p>
+    </div>
+
+    <!-- Weeks Selector -->
+    <div class="payment-container">
+        <div class="weeks-selector">
+            <h2>Select Duration</h2>
+            <p>Choose how many weeks you want to pay for</p>
+
+            <div class="weeks-buttons" id="weeksButtons">
+                <button class="week-btn active" data-weeks="1">1 Week</button>
+                <button class="week-btn" data-weeks="4">4 Weeks</button>
+                <button class="week-btn" data-weeks="8">8 Weeks</button>
+                <button class="week-btn" data-weeks="12">12 Weeks</button>
+            </div>
+
+            <div class="price-display" id="priceDisplay">10,000 MWK</div>
+        </div>
+
+        <!-- Current Selection -->
+        <div class="selection-info" id="selectionInfo">
+            <h3>Selected: 1 Week (10,000 MWK)</h3>
+            <p>Access to all 9 subjects for 1 week</p>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <!-- TNM Mpamba -->
+            <div class="payment-card">
+                <div class="payment-icon" style="color: #00A79D;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>TNM Mpamba</h3>
+                <div class="payment-details">
+                    <p><i class="fas fa-check" style="color: #00A79D;"></i> Mobile Money Payment</p>
+                    <p><i class="fas fa-check" style="color: #00A79D;"></i> Instant Activation</p>
+                    <p><i class="fas fa-check" style="color: #00A79D;"></i> 24/7 Available</p>
+                </div>
+                <button class="btn-pay" onclick="payWithMethod('tnm')">
+                    Pay with TNM Mpamba
+                </button>
+            </div>
+
+            <!-- Airtel Money -->
+            <div class="payment-card">
+                <div class="payment-icon" style="color: #FF0000;">
+                    <i class="fas fa-wifi"></i>
+                </div>
+                <h3>Airtel Money</h3>
+                <div class="payment-details">
+                    <p><i class="fas fa-check" style="color: #FF0000;"></i> Mobile Money Payment</p>
+                    <p><i class="fas fa-check" style="color: #FF0000;"></i> Quick Processing</p>
+                    <p><i class="fas fa-check" style="color: #FF0000;"></i> SMS Confirmation</p>
+                </div>
+                <button class="btn-pay" onclick="payWithMethod('airtel')">
+                    Pay with Airtel Money
+                </button>
+            </div>
+
+            <!-- NBS Bank -->
+            <div class="payment-card">
+                <div class="payment-icon" style="color: #0056A3;">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h3>NBS Bank</h3>
+                <div class="payment-details">
+                    <p><i class="fas fa-check" style="color: #0056A3;"></i> Internet Banking</p>
+                    <p><i class="fas fa-check" style="color: #0056A3;"></i> Mobile Banking</p>
+                    <p><i class="fas fa-check" style="color: #0056A3;"></i> Bank Transfer</p>
+                </div>
+                <button class="btn-pay" onclick="payWithMethod('nbs')">
+                    Pay via NBS Bank
+                </button>
+            </div>
+
+            <!-- PayChangu -->
+            <div class="payment-card">
+                <div class="payment-icon" style="color: #FF6B00;">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h3>PayChangu</h3>
+                <div class="payment-details">
+                    <p><i class="fas fa-check" style="color: #FF6B00;"></i> Digital Wallet</p>
+                    <p><i class="fas fa-check" style="color: #FF6B00;"></i> QR Code Payment</p>
+                    <p><i class="fas fa-check" style="color: #FF6B00;"></i> Instant Processing</p>
+                </div>
+                <button class="btn-pay" onclick="payWithMethod('paychangu')">
+                    Pay with PayChangu
+                </button>
+            </div>
+
+            <!-- National Bank -->
+            <div class="payment-card">
+                <div class="payment-icon" style="color: #00A651;">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h3>National Bank</h3>
+                <div class="payment-details">
+                    <p><i class="fas fa-check" style="color: #00A651;"></i> Bank Transfer</p>
+                    <p><i class="fas fa-check" style="color: #00A651;"></i> Mobile Banking</p>
+                    <p><i class="fas fa-check" style="color: #00A651;"></i> ATM Deposit</p>
+                </div>
+                <button class="btn-pay" onclick="payWithMethod('nbm')">
+                    Pay via National Bank
+                </button>
+            </div>
+
+            <!-- Three Fold Bursary -->
+            <div class="payment-card bursary-card">
+                <div class="payment-icon">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <h3>Three Fold Bursary</h3>
+                <div class="payment-details">
+                    <p><i class="fas fa-check"></i> For Eligible Students</p>
+                    <p><i class="fas fa-check"></i> Scholarship Program</p>
+                    <p><i class="fas fa-check"></i> Approval Required</p>
+                </div>
+                <a href="/bursary-application" class="btn-pay">
+                    Apply for Bursary
+                </a>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="how-it-works">
+            <h2 style="text-align: center; color: #1e3a8a; margin-bottom: 2rem;">How to Pay</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Select Duration</h4>
+                    <p>Choose 1, 4, 8, or 12 weeks</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Choose Method</h4>
+                    <p>Select your preferred payment method</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Follow Instructions</h4>
+                    <p>Get step-by-step payment guide</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4>Access Content</h4>
+                    <p>Start learning immediately after payment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedWeeks = 1;
+        let selectedAmount = 10000;
+        let selectedPrice = "10,000";
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Payment page loaded');
+
+            // Weeks selection
+            document.querySelectorAll('.week-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log('Week button clicked:', this.dataset.weeks);
+
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.week-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    // Update selection
+                    selectedWeeks = parseInt(this.dataset.weeks);
+                    console.log('Selected weeks:', selectedWeeks);
+
+                    // Calculate amount
+                    if (selectedWeeks === 1) {
+                        selectedAmount = 10000;
+                        selectedPrice = "10,000";
+                    } else if (selectedWeeks === 4) {
+                        selectedAmount = 35000;
+                        selectedPrice = "35,000";
+                    } else if (selectedWeeks === 8) {
+                        selectedAmount = 65000;
+                        selectedPrice = "65,000";
+                    } else if (selectedWeeks === 12) {
+                        selectedAmount = 95000;
+                        selectedPrice = "95,000";
+                    }
+
+                    console.log('Selected amount:', selectedAmount);
+
+                    // Update price display
+                    document.getElementById('priceDisplay').textContent = selectedPrice + ' MWK';
+
+                    // Update selection info
+                    const selectionInfo = document.getElementById('selectionInfo');
+                    selectionInfo.innerHTML = `
+                        <h3>Selected: ${selectedWeeks} Week${selectedWeeks > 1 ? 's' : ''} (${selectedPrice} MWK)</h3>
+                        <p>Access to all 9 subjects for ${selectedWeeks} week${selectedWeeks > 1 ? 's' : ''}</p>
+                    `;
+                });
+            });
+
+            // Add click handlers to all payment buttons
+            document.querySelectorAll('.btn-pay').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Check if this is a link (bursary)
+                    if (this.tagName === 'A') {
+                        return; // Let the link work normally
+                    }
+
+                    // Get method from onclick attribute
+                    const method = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    console.log('Paying with:', method, 'for', selectedWeeks, 'weeks');
+                    const url = `/make-payment/${method}/${selectedWeeks}`;
+                    console.log('Navigating to:', url);
+                    window.location.href = url;
+                });
+            });
+        });
+
+        // Simple function for onclick
+        function payWithMethod(method) {
+            console.log('Paying with:', method, 'for', selectedWeeks, 'weeks');
+            const url = `/make-payment/${method}/${selectedWeeks}`;
+            console.log('Navigating to:', url);
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

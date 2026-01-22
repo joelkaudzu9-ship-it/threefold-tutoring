@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: #fbbf24;
+            color: #1e3a8a;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #fbbf24;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #fbbf24;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Header */
+        .pricing-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23fbbf24' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .pricing-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pricing-header p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Pricing Cards */
+        .pricing-container {
+            max-width: 1400px;
+            margin: -3rem auto 3rem;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .pricing-card.popular {
+            border-color: #fbbf24;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: #fbbf24;
+            color: #1e3a8a;
+            padding: 0.5rem 3rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+            font-size: 0.9rem;
+        }
+
+        .pricing-card h2 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .price {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .price span {
+            font-size: 1.2rem;
+            color: #6b7280;
+            font-weight: normal;
+        }
+
+        .price::before {
+            content: 'MWK';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            color: #6b7280;
+            font-weight: normal;
+        }
+
+        .per-week {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .savings-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .features-list li {
+            margin: 1rem 0;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li i {
+            color: #10b981;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .features-list li.disabled {
+            color: #9ca3af;
+        }
+
+        .features-list li.disabled i {
+            color: #9ca3af;
+        }
+
+        .btn-pay {
+            background: #1e40af;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-pay:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-pay.secondary {
+            background: #f3f4f6;
+            color: #1e40af;
+        }
+
+        .btn-pay.secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* Payment Methods */
+        .payment-methods-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .payment-methods-section h2 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .payment-method {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .payment-method:hover {
+            transform: translateY(-5px);
+        }
+
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Subjects Included */
+        .subjects-included {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .subjects-included h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1e3a8a;
+            font-size: 2.5rem;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .subject-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .subject-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .subject-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* FAQ */
+        .faq {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .faq h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #1e3a8a;
+            font-size: 2.5rem;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .faq-answer {
+            margin-top: 1rem;
+            color: #4b5563;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 4rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-section h3 {
+            color: #fbbf24;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .footer-section p {
+            color: #cbd5e1;
+            margin: 0.5rem 0;
+        }
+
+        .footer-section a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: block;
+            margin: 0.5rem 0;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #fbbf24;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #475569;
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pricing-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .pricing-card.popular {
+                transform: none;
+            }
+
+            .pricing-card.popular:hover {
+                transform: translateY(-10px);
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .price {
+                font-size: 2.8rem;
+            }
+
+            .pricing-container {
+                margin-top: -2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-links {
+                display: none;
+            }
+
+            .pricing-header {
+                padding: 3rem 1rem;
+            }
+
+            .pricing-container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pricing-card {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .pricing-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .pricing-card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/subjects">Subjects</a>
+                <a href="/pricing" style="color: #fbbf24;">Pricing</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/profile">Profile</a>
+                    <a href="/logout">Logout</a>
+                {% else %}
+                    <a href="/login">Login</a>
+                    <a href="/register" class="btn-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="pricing-header">
+        <h1>Simple, Affordable Pricing</h1>
+        <p>Pay as you learn - Access all 9 subjects with flexible weekly payments. No long-term commitments, cancel anytime.</p>
+    </section>
+
+    <!-- Pricing Cards -->
+    <div class="pricing-container">
+        <div class="pricing-cards">
+            <!-- 1 Week Plan -->
+            <div class="pricing-card">
+                <h2>1 Week Access</h2>
+                <div class="price">10,000<span></span></div>
+                <p class="per-week">10,000 MWK per week</p>
+
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Access to all 9 subjects</li>
+                    <li><i class="fas fa-check"></i> 5 video lessons per week</li>
+                    <li><i class="fas fa-check"></i> Downloadable PDF notes</li>
+                    <li><i class="fas fa-check"></i> Basic progress tracking</li>
+                    <li><i class="fas fa-check"></i> 24/7 platform access</li>
+                    <li><i class="fas fa-check"></i> Email support</li>
+                    <li class="disabled"><i class="fas fa-times"></i> Weekly reports</li>
+                    <li class="disabled"><i class="fas fa-times"></i> Certificate of completion</li>
+                </ul>
+
+                {% if current_user.is_authenticated %}
+                    <a href="/payment-options" class="btn-pay">
+                        <i class="fas fa-credit-card"></i> Choose Payment Method
+                    </a>
+                {% else %}
+                    <a href="/register" class="btn-pay">
+                        <i class="fas fa-user-plus"></i> Get Started
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- 4 Weeks Plan (Most Popular) -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <h2>4 Weeks Access</h2>
+                <div class="price">35,000<span></span></div>
+                <p class="per-week">8,750 MWK per week</p>
+                <div class="savings-badge">Save 5,000 MWK (12.5% OFF)</div>
+
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Everything in 1 Week plan</li>
+                    <li><i class="fas fa-check"></i> 20 video lessons total</li>
+                    <li><i class="fas fa-check"></i> All PDF notes & worksheets</li>
+                    <li><i class="fas fa-check"></i> Advanced progress tracking</li>
+                    <li><i class="fas fa-check"></i> Weekly progress reports</li>
+                    <li><i class="fas fa-check"></i> Priority email support</li>
+                    <li><i class="fas fa-check"></i> Certificate of completion</li>
+                    <li class="disabled"><i class="fas fa-times"></i> Exam preparation kit</li>
+                </ul>
+
+                {% if current_user.is_authenticated %}
+                    <a href="/payment-options" class="btn-pay">
+                        <i class="fas fa-crown"></i> Get 4 Weeks Package
+                    </a>
+                {% else %}
+                    <a href="/register" class="btn-pay">
+                        <i class="fas fa-user-plus"></i> Get Started
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- 8 Weeks Plan -->
+            <div class="pricing-card">
+                <h2>8 Weeks Access</h2>
+                <div class="price">65,000<span></span></div>
+                <p class="per-week">8,125 MWK per week</p>
+                <div class="savings-badge">Save 15,000 MWK (19% OFF)</div>
+
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Everything in 4 Weeks plan</li>
+                    <li><i class="fas fa-check"></i> 40 video lessons total</li>
+                    <li><i class="fas fa-check"></i> Complete study package</li>
+                    <li><i class="fas fa-check"></i> Personalized study plan</li>
+                    <li><i class="fas fa-check"></i> Exam preparation kit</li>
+                    <li><i class="fas fa-check"></i> Priority phone support</li>
+                    <li><i class="fas fa-check"></i> Certificate with grades</li>
+                    <li><i class="fas fa-check"></i> 1-on-1 consultation session</li>
+                </ul>
+
+                {% if current_user.is_authenticated %}
+                    <a href="/payment-options" class="btn-pay">
+                        <i class="fas fa-star"></i> Get 8 Weeks Package
+                    </a>
+                {% else %}
+                    <a href="/register" class="btn-pay">
+                        <i class="fas fa-user-plus"></i> Get Started
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <section class="payment-methods-section">
+        <h2>Multiple Payment Options</h2>
+        <p style="text-align: center; color: #6b7280; max-width: 800px; margin: 0 auto 2rem;">
+            Choose your preferred payment method. All payments are secure and processed instantly.
+        </p>
+
+        <div class="payment-methods-grid">
+            <div class="payment-method" style="border-top: 4px solid #00A79D;">
+                <div class="payment-icon" style="color: #00A79D;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>TNM Mpamba</h3>
+                <p>Mobile Money</p>
+            </div>
+
+            <div class="payment-method" style="border-top: 4px solid #FF0000;">
+                <div class="payment-icon" style="color: #FF0000;">
+                    <i class="fas fa-wifi"></i>
+                </div>
+                <h3>Airtel Money</h3>
+                <p>Mobile Money</p>
+            </div>
+
+            <div class="payment-method" style="border-top: 4px solid #0056A3;">
+                <div class="payment-icon" style="color: #0056A3;">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h3>NBS Bank</h3>
+                <p>Bank Transfer</p>
+            </div>
+
+            <div class="payment-method" style="border-top: 4px solid #FF6B00;">
+                <div class="payment-icon" style="color: #FF6B00;">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h3>PayChangu</h3>
+                <p>Digital Wallet</p>
+            </div>
+
+            <div class="payment-method" style="border-top: 4px solid #00A651;">
+                <div class="payment-icon" style="color: #00A651;">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h3>National Bank</h3>
+                <p>Bank Transfer</p>
+            </div>
+
+            <div class="payment-method" style="border-top: 4px solid #FBBF24;">
+                <div class="payment-icon" style="color: #FBBF24;">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <h3>Three Fold Bursary</h3>
+                <p>Scholarship Program</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            {% if current_user.is_authenticated %}
+                <a href="/payment-options" class="btn-pay" style="max-width: 400px; margin: 0 auto;">
+                    <i class="fas fa-wallet"></i> View All Payment Options
+                </a>
+            {% else %}
+                <a href="/register" class="btn-pay" style="max-width: 400px; margin: 0 auto;">
+                    <i class="fas fa-user-plus"></i> Register to See Payment Options
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Subjects Included -->
+    <section class="subjects-included">
+        <h2>All 9 Subjects Included</h2>
+        <p style="text-align: center; color: #6b7280; max-width: 800px; margin: 0 auto 3rem;">
+            Your payment gives you complete access to all subjects. No extra charges, no hidden fees.
+        </p>
+
+        <div class="subjects-grid">
+            <div class="subject-item" style="border-top: 4px solid #3B82F6;">
+                <div class="subject-icon" style="color: #3B82F6;">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h4>Mathematics</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #10B981;">
+                <div class="subject-icon" style="color: #10B981;">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <h4>Chemistry</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #EF4444;">
+                <div class="subject-icon" style="color: #EF4444;">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <h4>Physics</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #8B5CF6;">
+                <div class="subject-icon" style="color: #8B5CF6;">
+                    <i class="fas fa-tractor"></i>
+                </div>
+                <h4>Agriculture</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #059669;">
+                <div class="subject-icon" style="color: #059669;">
+                    <i class="fas fa-dna"></i>
+                </div>
+                <h4>Biology</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #DC2626;">
+                <div class="subject-icon" style="color: #DC2626;">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h4>English</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #F59E0B;">
+                <div class="subject-icon" style="color: #F59E0B;">
+                    <i class="fas fa-language"></i>
+                </div>
+                <h4>Chichewa</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #6366F1;">
+                <div class="subject-icon" style="color: #6366F1;">
+                    <i class="fas fa-globe-africa"></i>
+                </div>
+                <h4>Geography</h4>
+            </div>
+
+            <div class="subject-item" style="border-top: 4px solid #8B5CF6;">
+                <div class="subject-icon" style="color: #8B5CF6;">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h4>History</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+                <span>How does the weekly payment work?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>You pay 10,000 MWK per week. Each payment gives you access to all 9 subjects for that week. You can pay for multiple weeks at once to get discounts.</p>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+                <span>What happens when my access expires?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Your access will automatically expire at the end of your paid period. You'll need to make another payment to continue. All your progress is saved and will be available when you renew.</p>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+                <span>Can I download the lessons?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>For copyright protection, lessons are streamed online and cannot be downloaded. However, all PDF notes and worksheets are available for download during your access period.</p>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+                <span>How do I apply for the Three Fold Bursary?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>After registering, go to Payment Options and select "Three Fold Bursary". You'll need to fill out an application form and provide supporting documents. Applications are reviewed within 5 working days.</p>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+                <span>What if I have payment problems?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Contact our payment support team at payments@threefoldventures.com or WhatsApp +265 888 123 456. We're available Monday to Saturday, 8 AM to 6 PM.</p>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+                <span>Can I get a refund?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Refunds are available within 24 hours of payment if you haven't accessed any content. After accessing content, refunds are at the discretion of management and require a valid reason.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>THREE FOLD VENTURES</h3>
+                <p>Excellence in Education</p>
+                <p>Malawi's Premier Online Tutoring Platform</p>
+                <p>Providing quality education since 2024</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="/">Home</a>
+                <a href="/subjects">Subjects</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/profile">My Profile</a>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p><i class="fas fa-envelope"></i> info@threefoldventures.com</p>
+                <p><i class="fas fa-phone"></i> +265 888 123 456</p>
+                <p><i class="fas fa-whatsapp"></i> +265 999 123 456</p>
+                <p><i class="fas fa-map-marker-alt"></i> Lilongwe, Malawi</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Payment Support</h4>
+                <p><i class="fas fa-credit-card"></i> payments@threefoldventures.com</p>
+                <p><i class="fas fa-clock"></i> Mon-Sat: 8:00 AM - 6:00 PM</p>
+                <p><i class="fas fa-headset"></i> Emergency: +265 887 123 456</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 THREE FOLD VENTURES. All rights reserved. | <a href="#" style="color: #fbbf24;">Terms of Service</a> | <a href="#" style="color: #fbbf24;">Privacy Policy</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Toggle Function
+        function toggleFAQ(element) {
+            // Close all other FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== element) {
+                    item.classList.remove('active');
+                    item.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Toggle current FAQ item
+            element.classList.toggle('active');
+            const icon = element.querySelector('.fa-chevron-down');
+
+            if (element.classList.contains('active')) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Auto-open first FAQ
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstFAQ = document.querySelector('.faq-item');
+            if (firstFAQ) {
+                toggleFAQ(firstFAQ);
+            }
+
+            // Add scroll animation
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe pricing cards
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+
+        // Format currency display
+        function formatCurrency(amount) {
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    </script>
+</body>
+</html>

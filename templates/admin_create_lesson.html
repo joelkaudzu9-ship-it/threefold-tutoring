@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Lesson - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+        .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+
+        /* Form Styling */
+        .form-card { background: white; border-radius: 10px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-header { margin-bottom: 2rem; }
+        .form-header h1 { color: #1e3a8a; margin-bottom: 0.5rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #4b5563; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .required::after { content: ' *'; color: #ef4444; }
+
+        /* Content Type Selector */
+        .content-type-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem; }
+        .content-type-option { padding: 1rem; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .content-type-option:hover { border-color: #1e40af; }
+        .content-type-option.selected { border-color: #10b981; background: #f0fdf4; }
+        .content-type-option i { font-size: 2rem; margin-bottom: 0.5rem; color: #6b7280; }
+        .content-type-option.selected i { color: #10b981; }
+
+        /* File Upload Area */
+        .upload-area { border: 3px dashed #d1d5db; border-radius: 10px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: #1e40af; background: #f0f9ff; }
+        .upload-area.dragover { border-color: #10b981; background: #f0fdf4; }
+        .upload-area i { font-size: 3rem; color: #9ca3af; margin-bottom: 1rem; }
+        .upload-area p { color: #6b7280; margin-bottom: 0.5rem; }
+        .upload-area small { color: #9ca3af; display: block; margin-top: 1rem; }
+        .file-preview { display: none; margin-top: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px; }
+        .file-preview.show { display: block; }
+        .file-preview img { max-width: 200px; max-height: 150px; border-radius: 5px; margin-bottom: 0.5rem; }
+        .file-preview audio, .file-preview video { width: 100%; max-width: 400px; margin: 0.5rem 0; }
+        .file-info { display: flex; align-items: center; gap: 1rem; }
+        .file-icon { font-size: 2rem; color: #3b82f6; }
+
+        /* URL Input */
+        .url-input { display: none; }
+        .url-input.show { display: block; }
+
+        /* Preview Section */
+        .preview-section { display: none; margin-top: 2rem; padding: 1.5rem; background: #f9fafb; border-radius: 10px; }
+        .preview-section.show { display: block; }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+
+        /* Buttons */
+        .form-buttons { display: flex; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 500; }
+        .btn-primary { background: #10b981; color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+        .btn-preview { background: #3b82f6; color: white; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .content-type-selector { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES ADMIN</div>
+            </div>
+            <div class="nav-links">
+                <span style="color: #fbbf24;"><i class="fas fa-user-shield"></i> {{ current_user.email }}</span>
+                <a href="/admin">Dashboard</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div style="margin-bottom: 2rem;">
+            <a href="{{ url_for('admin_lessons') }}" style="color: #1e40af; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to Lessons
+            </a>
+        </div>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1><i class="fas fa-plus-circle"></i> Create New Lesson</h1>
+                <p style="color: #6b7280;">Upload files from your device or add YouTube links</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('create_lesson') }}" enctype="multipart/form-data" id="lessonForm">
+                <div class="form-grid">
+                    <!-- Subject Selection -->
+                    <div class="form-group">
+                        <label for="subject_id" class="required">Subject</label>
+                        <select name="subject_id" id="subject_id" required>
+                            <option value="">Select Subject</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }} ({{ subject.code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Lesson Title -->
+                    <div class="form-group">
+                        <label for="title" class="required">Lesson Title</label>
+                        <input type="text" name="title" id="title" required placeholder="e.g., Introduction to Algebra">
+                    </div>
+
+                    <!-- Week and Day -->
+                    <div class="form-group">
+                        <label for="week_number" class="required">Week Number</label>
+                        <input type="number" name="week_number" id="week_number" min="1" max="52" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="day_number" class="required">Day Number</label>
+                        <input type="number" name="day_number" id="day_number" min="1" max="7" value="1" required>
+                    </div>
+
+                    <!-- Content Type Selection -->
+                    <div class="form-group full-width">
+                        <label class="required">Content Type</label>
+                        <div class="content-type-selector">
+                            <div class="content-type-option" data-type="video" onclick="selectContentType('video')">
+                                <i class="fas fa-video"></i>
+                                <div>Video File</div>
+                            </div>
+                            <div class="content-type-option" data-type="youtube" onclick="selectContentType('youtube')">
+                                <i class="fab fa-youtube"></i>
+                                <div>YouTube Link</div>
+                            </div>
+                            <div class="content-type-option" data-type="pdf" onclick="selectContentType('pdf')">
+                                <i class="fas fa-file-pdf"></i>
+                                <div>PDF Document</div>
+                            </div>
+                            <div class="content-type-option" data-type="audio" onclick="selectContentType('audio')">
+                                <i class="fas fa-podcast"></i>
+                                <div>Audio File</div>
+                            </div>
+                            <div class="content-type-option" data-type="document" onclick="selectContentType('document')">
+                                <i class="fas fa-file-word"></i>
+                                <div>Document</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="content_type" id="content_type" value="video" required>
+                    </div>
+
+                    <!-- Duration and Order -->
+                    <div class="form-group">
+                        <label for="duration" class="required">Duration (minutes)</label>
+                        <input type="number" name="duration" id="duration" min="1" max="240" value="30" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="order">Order in Day</label>
+                        <input type="number" name="order" id="order" value="1" min="1" max="10">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group full-width">
+                        <label for="description" class="required">Lesson Description</label>
+                        <textarea name="description" id="description" required placeholder="Describe what this lesson covers..."></textarea>
+                    </div>
+
+                    <!-- File Upload Area -->
+                    <div class="form-group full-width" id="fileUploadSection">
+                        <label class="required">Upload Content</label>
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('file').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p id="uploadText">Click to upload or drag and drop</p>
+                            <p id="fileName" style="font-weight: 500; color: #1e40af;"></p>
+                            <small>Supports: MP4, AVI, MOV, MP3, WAV, PDF, DOC, DOCX, PPT, PPTX (Max 100MB)</small>
+                        </div>
+                        <input type="file" name="file" id="file" style="display: none;" onchange="handleFileSelect(this)">
+
+                        <div class="file-preview" id="filePreview"></div>
+                    </div>
+
+                    <!-- YouTube URL Input -->
+                    <div class="form-group full-width url-input" id="youtubeUrlSection">
+                        <label for="youtube_url" class="required">YouTube Video URL</label>
+                        <input type="url" name="youtube_url" id="youtube_url" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/...">
+                        <small style="color: #6b7280; display: block; margin-top: 0.5rem;">
+                            Enter YouTube video URL. For unlisted videos, use the direct video URL.
+                        </small>
+                        <div id="youtubePreview" style="margin-top: 1rem; display: none;"></div>
+                    </div>
+
+                    <!-- Embed Code Input (Alternative) -->
+                    <div class="form-group full-width url-input" id="embedUrlSection">
+                        <label for="embed_url">Embed URL (Alternative)</label>
+                        <input type="url" name="embed_url" id="embed_url" placeholder="https://www.youtube.com/embed/...">
+                        <small style="color: #6b7280; display: block; margin-top: 0.5rem;">
+                            Direct embed URL for unlisted/private videos
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Publish Option -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" name="is_published" checked>
+                        <span>Publish this lesson immediately</span>
+                    </label>
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Lesson
+                    </button>
+                    <button type="button" class="btn btn-preview" onclick="previewLesson()">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <a href="{{ url_for('admin_lessons') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+            <!-- Preview Section -->
+            <div class="preview-section" id="previewSection">
+                <div class="preview-header">
+                    <h3 style="color: #1e3a8a;">Lesson Preview</h3>
+                    <button type="button" onclick="closePreview()" style="background: none; border: none; color: #6b7280; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="previewContent">
+                    <!-- Preview will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Content Type Selection
+        let selectedContentType = 'video';
+
+        function selectContentType(type) {
+            selectedContentType = type;
+            document.getElementById('content_type').value = type;
+
+            // Update visual selection
+            document.querySelectorAll('.content-type-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            // Show/hide appropriate sections
+            const fileUploadSection = document.getElementById('fileUploadSection');
+            const youtubeUrlSection = document.getElementById('youtubeUrlSection');
+            const embedUrlSection = document.getElementById('embedUrlSection');
+
+            // Reset all
+            fileUploadSection.style.display = 'block';
+            youtubeUrlSection.classList.remove('show');
+            embedUrlSection.classList.remove('show');
+            document.getElementById('youtube_url').required = false;
+
+            if (type === 'youtube') {
+                fileUploadSection.style.display = 'none';
+                youtubeUrlSection.classList.add('show');
+                embedUrlSection.classList.add('show');
+                document.getElementById('youtube_url').required = true;
+            } else {
+                fileUploadSection.style.display = 'block';
+            }
+
+            updateUploadText(type);
+        }
+
+        function updateUploadText(type) {
+            const uploadText = document.getElementById('uploadText');
+            const fileName = document.getElementById('fileName');
+
+            switch(type) {
+                case 'video':
+                    uploadText.textContent = 'Click to upload video file (MP4, AVI, MOV)';
+                    break;
+                case 'pdf':
+                    uploadText.textContent = 'Click to upload PDF document';
+                    break;
+                case 'audio':
+                    uploadText.textContent = 'Click to upload audio file (MP3, WAV)';
+                    break;
+                case 'document':
+                    uploadText.textContent = 'Click to upload document (DOC, DOCX, PPT, PPTX)';
+                    break;
+                default:
+                    uploadText.textContent = 'Click to upload or drag and drop';
+            }
+
+            // Clear file name when type changes
+            fileName.textContent = '';
+            document.getElementById('filePreview').classList.remove('show');
+        }
+
+        // File Upload Handling
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const fileName = document.getElementById('fileName');
+            const filePreview = document.getElementById('filePreview');
+            const contentType = selectedContentType;
+
+            fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
+
+            // Clear previous preview
+            filePreview.innerHTML = '';
+
+            // Show appropriate preview based on file type
+            if (contentType === 'video' && file.type.startsWith('video/')) {
+                filePreview.innerHTML = `
+                    <video controls>
+                        <source src="${URL.createObjectURL(file)}" type="${file.type}">
+                        Your browser does not support video playback.
+                    </video>
+                    <p><strong>${file.name}</strong> - ${formatFileSize(file.size)}</p>
+                `;
+            } else if (contentType === 'audio' && file.type.startsWith('audio/')) {
+                filePreview.innerHTML = `
+                    <audio controls>
+                        <source src="${URL.createObjectURL(file)}" type="${file.type}">
+                        Your browser does not support audio playback.
+                    </audio>
+                    <p><strong>${file.name}</strong> - ${formatFileSize(file.size)}</p>
+                `;
+            } else if (contentType === 'pdf' && file.type === 'application/pdf') {
+                filePreview.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <p><strong>${file.name}</strong></p>
+                            <p>${formatFileSize(file.size)} - PDF Document</p>
+                        </div>
+                    </div>
+                `;
+            } else if (contentType === 'document') {
+                filePreview.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <i class="fas fa-file-word"></i>
+                        </div>
+                        <div>
+                            <p><strong>${file.name}</strong></p>
+                            <p>${formatFileSize(file.size)} - Document</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                filePreview.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div>
+                            <p><strong>${file.name}</strong></p>
+                            <p>${formatFileSize(file.size)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            filePreview.classList.add('show');
+        }
+
+        // YouTube URL Handling
+        document.getElementById('youtube_url').addEventListener('input', function(e) {
+            const url = e.target.value;
+            const previewDiv = document.getElementById('youtubePreview');
+
+            if (!url) {
+                previewDiv.style.display = 'none';
+                return;
+            }
+
+            // Try to extract video ID
+            let videoId = extractYouTubeId(url);
+            if (videoId) {
+                previewDiv.innerHTML = `
+                    <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
+                        <p style="margin-bottom: 0.5rem; color: #065f46;"><i class="fas fa-check-circle"></i> Valid YouTube URL detected</p>
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 5px;">
+                            <iframe src="https://www.youtube.com/embed/${videoId}"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                        <p style="margin-top: 0.5rem; color: #6b7280; font-size: 0.875rem;">Preview of embedded video</p>
+                    </div>
+                `;
+                previewDiv.style.display = 'block';
+            } else {
+                previewDiv.innerHTML = `
+                    <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; color: #92400e;">
+                        <p><i class="fas fa-exclamation-triangle"></i> Could not extract YouTube video ID. Make sure it's a valid YouTube URL.</p>
+                    </div>
+                `;
+                previewDiv.style.display = 'block';
+            }
+        });
+
+        // Helper Functions
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function extractYouTubeId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                /^([A-Za-z0-9_-]{11})$/
+            ];
+
+            for (let pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        // Drag and Drop
+        const uploadArea = document.getElementById('uploadArea');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            uploadArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            uploadArea.classList.remove('dragover');
+        }
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                const fileInput = document.getElementById('file');
+                fileInput.files = files;
+                handleFileSelect(fileInput);
+            }
+        }
+
+        // Preview Functionality
+        function previewLesson() {
+            const form = document.getElementById('lessonForm');
+            const formData = new FormData(form);
+
+            const previewContent = document.getElementById('previewContent');
+            const previewSection = document.getElementById('previewSection');
+
+            // Basic preview
+            let previewHTML = `
+                <h4>${formData.get('title') || 'Untitled Lesson'}</h4>
+                <p><strong>Subject:</strong> ${document.getElementById('subject_id').options[document.getElementById('subject_id').selectedIndex].text || 'Not selected'}</p>
+                <p><strong>Week:</strong> ${formData.get('week_number')} | <strong>Day:</strong> ${formData.get('day_number')}</p>
+                <p><strong>Duration:</strong> ${formData.get('duration')} minutes</p>
+                <p><strong>Description:</strong> ${formData.get('description') || 'No description'}</p>
+                <p><strong>Content Type:</strong> ${selectedContentType.charAt(0).toUpperCase() + selectedContentType.slice(1)}</p>
+            `;
+
+            // Add content preview
+            if (selectedContentType === 'youtube') {
+                const youtubeUrl = formData.get('youtube_url');
+                const videoId = extractYouTubeId(youtubeUrl);
+                if (videoId) {
+                    previewHTML += `
+                        <div style="margin-top: 1rem;">
+                            <p><strong>YouTube Video:</strong></p>
+                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+                                <iframe src="https://www.youtube.com/embed/${videoId}"
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                const file = document.getElementById('file').files[0];
+                if (file) {
+                    previewHTML += `
+                        <div style="margin-top: 1rem;">
+                            <p><strong>Uploaded File:</strong> ${file.name} (${formatFileSize(file.size)})</p>
+                        </div>
+                    `;
+                }
+            }
+
+            previewContent.innerHTML = previewHTML;
+            previewSection.classList.add('show');
+        }
+
+        function closePreview() {
+            document.getElementById('previewSection').classList.remove('show');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            selectContentType('video');
+        });
+    </script>
+</body>
+</html>

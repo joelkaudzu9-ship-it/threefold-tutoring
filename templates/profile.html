@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+
+        .profile-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+
+        .sidebar { background: white; border-radius: 10px; padding: 1.5rem; }
+        .profile-card { text-align: center; margin-bottom: 2rem; }
+        .avatar { background: #1e40af; color: white; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem; }
+
+        .content { background: white; border-radius: 10px; padding: 2rem; }
+
+        .payment-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .payment-table th, .payment-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        .payment-table th { background: #f3f4f6; }
+
+        .status-completed { color: #10b981; }
+        .status-pending { color: #f59e0b; }
+        .status-failed { color: #ef4444; }
+
+        @media (max-width: 768px) {
+            .profile-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/profile">Profile</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="sidebar">
+            <div class="profile-card">
+                <div class="avatar">
+                    {{ current_user.name[0] if current_user.name else 'U' }}
+                </div>
+                <h3>{{ current_user.name or 'User' }}</h3>
+                <p>{{ current_user.email }}</p>
+                {% if current_user.phone %}
+                <p>{{ current_user.phone }}</p>
+                {% endif %}
+                {% if current_user.student_id %}
+                <p>ID: {{ current_user.student_id }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <h4>Quick Links</h4>
+                <a href="/dashboard" style="display: block; padding: 0.5rem; color: #1e40af;">Dashboard</a>
+                <a href="/subjects" style="display: block; padding: 0.5rem; color: #1e40af;">Subjects</a>
+                <a href="/payment-options" style="display: block; padding: 0.5rem; color: #1e40af;">Make Payment</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Payment History</h2>
+
+            {% if payments %}
+            <table class="payment-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.created_at.strftime('%d %b %Y') }}</td>
+                        <td>{{ payment.amount|format }} MWK</td>
+                        <td>{{ payment.payment_method }}</td>
+                        <td>{{ payment.weeks }} Week{{ 's' if payment.weeks > 1 }}</td>
+                        <td>
+                            {% if payment.status == 'completed' %}
+                                <span class="status-completed">Completed</span>
+                            {% elif payment.status == 'pending' %}
+                                <span class="status-pending">Pending</span>
+                            {% elif payment.status == 'pending_approval' %}
+                                <span class="status-pending">Pending Approval</span>
+                            {% else %}
+                                <span class="status-failed">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.transaction_id }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No payment history found.</p>
+            <a href="/payment-options" style="color: #1e40af;">Make your first payment</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

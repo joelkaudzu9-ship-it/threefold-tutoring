@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Management - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+
+        .admin-container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
+
+        /* Admin Layout */
+        .admin-layout { display: flex; gap: 2rem; }
+        .admin-sidebar { width: 250px; background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: fit-content; }
+        .admin-sidebar h3 { color: #1e3a8a; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; }
+        .admin-sidebar ul { list-style: none; }
+        .admin-sidebar li { margin-bottom: 0.5rem; }
+        .admin-sidebar a { color: #4b5563; text-decoration: none; display: block; padding: 0.5rem 1rem; border-radius: 5px; transition: all 0.3s; }
+        .admin-sidebar a:hover { background: #f3f4f6; color: #1e40af; }
+        .admin-sidebar a.active { background: #1e40af; color: white; }
+
+        .admin-content { flex: 1; }
+
+        /* Header */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn-create { padding: 0.75rem 1.5rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+
+        /* Filters */
+        .filters { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .filter-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .filter-group label { display: block; margin-bottom: 0.5rem; color: #4b5563; font-weight: 500; }
+        .filter-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; }
+        .filter-buttons { display: flex; gap: 1rem; align-items: flex-end; }
+        .btn-filter { padding: 0.75rem 1.5rem; background: #1e40af; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .btn-reset { padding: 0.75rem 1.5rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .stat-card h3 { color: #1e3a8a; margin-bottom: 0.5rem; }
+
+        /* Lessons List */
+        .lessons-list { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .lesson-item { padding: 1.5rem; border-bottom: 1px solid #e5e7eb; transition: background 0.3s; }
+        .lesson-item:hover { background: #f9fafb; }
+        .lesson-item:last-child { border-bottom: none; }
+        .lesson-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .lesson-title h3 { margin-bottom: 0.25rem; }
+        .lesson-subject { display: inline-block; padding: 0.25rem 0.75rem; background: #e0e7ff; color: #1e40af; border-radius: 9999px; font-size: 0.875rem; }
+        .lesson-meta { display: flex; gap: 1rem; color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem; }
+        .lesson-description { color: #4b5563; margin-bottom: 1rem; }
+        .lesson-actions { display: flex; gap: 0.5rem; }
+
+        /* Status Badges */
+        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
+        .status-published { background: #d1fae5; color: #065f46; }
+        .status-draft { background: #fef3c7; color: #92400e; }
+
+        /* Buttons */
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .btn-view { background: #3b82f6; color: white; }
+        .btn-edit { background: #f59e0b; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state i { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES ADMIN</div>
+            </div>
+            <div class="nav-links">
+                <span style="color: #fbbf24;"><i class="fas fa-user-shield"></i> {{ current_user.email }}</span>
+                <a href="/">Home</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-layout">
+            <!-- Sidebar -->
+            <div class="admin-sidebar">
+                <h3>Admin Panel</h3>
+                <ul>
+                    <li><a href="/admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="/admin/subjects"><i class="fas fa-book"></i> Subjects</a></li>
+                    <li><a href="/admin/lessons" class="active"><i class="fas fa-graduation-cap"></i> Lessons</a></li>
+                    <li><a href="/admin/payments"><i class="fas fa-credit-card"></i> Payments</a></li>
+                    <li><a href="/admin/analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                    <li><a href="/admin/create_lesson"><i class="fas fa-plus-circle"></i> Create Lesson</a></li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-graduation-cap"></i> Lesson Management</h1>
+                    <a href="{{ url_for('create_lesson') }}" class="btn-create">
+                        <i class="fas fa-plus"></i> Create Lesson
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Lessons</h3>
+                        <p style="font-size: 1.5rem; color: #1e40af;">{{ lessons|length }}</p>
+                        <small>All lessons</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Published</h3>
+                        <p style="font-size: 1.5rem; color: #10b981;">{{ lessons|selectattr('is_published')|list|length }}</p>
+                        <small>Published lessons</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Subjects</h3>
+                        <p style="font-size: 1.5rem; color: #8b5cf6;">{{ subjects|length }}</p>
+                        <small>Subjects with lessons</small>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <form method="GET" action="{{ url_for('admin_lessons') }}" class="filter-form">
+                        <div class="filter-group">
+                            <label for="subject_id">Subject</label>
+                            <select name="subject_id" id="subject_id" onchange="this.form.submit()">
+                                <option value="">All Subjects</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}" {% if selected_subject == subject.id %}selected{% endif %}>
+                                    {{ subject.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="week">Week</label>
+                            <select name="week" id="week">
+                                <option value="">All Weeks</option>
+                                {% for week in range(1, 13) %}
+                                <option value="{{ week }}">Week {{ week }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-buttons">
+                            <button type="submit" class="btn-filter">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                            <a href="{{ url_for('admin_lessons') }}" class="btn-reset">
+                                <i class="fas fa-redo"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <!-- Lessons List -->
+                {% if lessons %}
+                <div class="lessons-list">
+                    {% for lesson in lessons %}
+                    <div class="lesson-item">
+                        <div class="lesson-header">
+                            <div>
+                                <div class="lesson-title">
+                                    <h3>{{ lesson.title }}</h3>
+                                    <span class="lesson-subject">{{ lesson.subject.name }}</span>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-calendar"></i> Week {{ lesson.week_number }}, Day {{ lesson.day_number }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ lesson.duration }} minutes</span>
+                                    <span><i class="fas fa-file-alt"></i> {{ lesson.content_type|capitalize }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="status-badge {{ 'status-published' if lesson.is_published else 'status-draft' }}">
+                                    {{ 'Published' if lesson.is_published else 'Draft' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="lesson-description">
+                            {{ lesson.description|truncate(150) }}
+                        </div>
+
+                        <div class="lesson-actions">
+                            <a href="{{ url_for('view_lesson', lesson_id=lesson.id) }}" target="_blank" class="btn btn-view">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{{ url_for('edit_lesson', lesson_id=lesson.id) }}" class="btn btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('toggle_lesson', lesson_id=lesson.id) }}" class="btn {{ 'btn-delete' if lesson.is_published else 'btn-edit' }}"
+                               onclick="return confirm('{{ 'Unpublish' if lesson.is_published else 'Publish' }} this lesson?')">
+                                <i class="fas {{ 'fa-eye-slash' if lesson.is_published else 'fa-eye' }}"></i>
+                                {{ 'Unpublish' if lesson.is_published else 'Publish' }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>No Lessons Found</h3>
+                    <p>{% if selected_subject %}No lessons for this subject.{% else %}Create your first lesson to get started.{% endif %}</p>
+                    <a href="{{ url_for('create_lesson') }}" class="btn-create" style="margin-top: 1rem;">
+                        <i class="fas fa-plus"></i> Create Lesson
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- In admin_lessons.html table, add this column -->
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Subject</th>
+            <th>Content Type</th>  <!-- Add this -->
+            <th>Week/Day</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lesson in lessons %}
+        <tr>
+            <td>{{ lesson.title }}</td>
+            <td>{{ lesson.subject.name }}</td>
+            <td>
+                {% if lesson.content_type == 'youtube' %}
+                <span class="status-badge" style="background: #ff0000; color: white;">
+                    <i class="fab fa-youtube"></i> YouTube
+                </span>
+                {% elif lesson.content_type == 'video' %}
+                <span class="status-badge" style="background: #3b82f6; color: white;">
+                    <i class="fas fa-video"></i> Video
+                </span>
+                {% elif lesson.content_type == 'pdf' %}
+                <span class="status-badge" style="background: #ef4444; color: white;">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </span>
+                {% elif lesson.content_type == 'audio' %}
+                <span class="status-badge" style="background: #8b5cf6; color: white;">
+                    <i class="fas fa-podcast"></i> Audio
+                </span>
+                {% elif lesson.content_type == 'document' %}
+                <span class="status-badge" style="background: #10b981; color: white;">
+                    <i class="fas fa-file-word"></i> Document
+                </span>
+                {% else %}
+                <span class="status-badge">{{ lesson.content_type|capitalize }}</span>
+                {% endif %}
+            </td>
+            <td>Week {{ lesson.week_number }}, Day {{ lesson.day_number }}</td>
+            <td>
+                <span class="status-badge {{ 'status-published' if lesson.is_published else 'status-draft' }}">
+                    {{ 'Published' if lesson.is_published else 'Draft' }}
+                </span>
+            </td>
+            <td class="action-buttons">
+                <!-- Action buttons -->
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+    <script>
+        // Auto-expand lesson description on click
+        document.querySelectorAll('.lesson-description').forEach(desc => {
+            desc.addEventListener('click', function() {
+                this.classList.toggle('expanded');
+                if (this.classList.contains('expanded')) {
+                    this.innerHTML = this.getAttribute('data-full') || this.innerHTML;
+                } else {
+                    // Store full text and truncate
+                    if (!this.getAttribute('data-full')) {
+                        this.setAttribute('data-full', this.innerHTML);
+                    }
+                    const text = this.getAttribute('data-full');
+                    this.innerHTML = text.length > 150 ? text.substring(0, 150) + '...' : text;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - THREE FOLD VENTURES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Navigation */
+        nav { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 1rem 2rem; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: #fbbf24; color: #1e3a8a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logo-text { font-size: 1.5rem; font-weight: bold; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+
+        /* Success Container */
+        .success-container {
+            max-width: 600px;
+            margin: 3rem auto;
+            padding: 2rem;
+            text-align: center;
+            flex: 1;
+        }
+
+        .success-icon {
+            background: #10b981;
+            color: white;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 2rem;
+            animation: bounce 1s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 { color: #1e3a8a; margin-bottom: 1rem; }
+
+        .payment-details {
+            background: #eff6ff;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #d1d5db;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            background: #1e40af;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #1e40af;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .actions { flex-direction: column; }
+            .btn { width: 100%; margin: 0.5rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">TFV</div>
+                <div class="logo-text">THREE FOLD VENTURES</div>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/subjects">Subjects</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="success-container">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h1>Payment Successful!</h1>
+        <p>Your payment has been processed successfully.</p>
+        <p>You now have access to all subjects for the paid duration.</p>
+
+        {% if payment %}
+        <div class="payment-details">
+            <h3 style="color: #1e3a8a; margin-bottom: 1.5rem;">Payment Details</h3>
+            <div class="detail-row">
+                <span>Amount Paid:</span>
+                <span>{{ payment.amount|int|format(',') }} MWK</span>
+            </div>
+            <div class="detail-row">
+                <span>Duration:</span>
+                <span>{{ payment.weeks }} Week{{ 's' if payment.weeks > 1 }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Payment Method:</span>
+                <span>{{ payment.payment_method }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Transaction ID:</span>
+                <span>{{ payment.transaction_id }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Access Until:</span>
+                <span>{{ payment.end_date.strftime('%d %b %Y') }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="/dashboard" class="btn">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </a>
+            <a href="/subjects" class="btn btn-secondary">
+                <i class="fas fa-book"></i> Browse Subjects
+            </a>
+        </div>
+
+        <div style="margin-top: 2rem; color: #6b7280;">
+            <p><i class="fas fa-info-circle"></i> A payment receipt has been sent to your email.</p>
+            <p>Contact support if you have any questions.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 THREE FOLD VENTURES. All rights reserved.</p>
+        <p>Contact: info@threefoldventures.com | +265 888 123 456</p>
+    </footer>
+</body>
+</html>
