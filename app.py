@@ -1735,6 +1735,73 @@ def init_database():
         db.session.commit()
         print("✅ THREE FOLD VENTURES database initialized with demo videos!")
 
+@app.route('/check-init')
+def check_init():
+    """Check if database is initialized"""
+    import sqlalchemy
+    
+    info = {
+        'App context': str(app.app_context),
+        'Database URI': app.config.get('SQLALCHEMY_DATABASE_URI', 'NOT SET'),
+        'DATABASE_URL env': os.environ.get('DATABASE_URL', 'NOT SET'),
+        'On Render?': 'RENDER' in os.environ,
+    }
+    
+    html = "<h1>Database Initialization Check</h1>"
+    for key, value in info.items():
+        html += f"<p><strong>{key}:</strong> {value}</p>"
+    
+    # Try to check tables
+    try:
+        with app.app_context():
+            inspector = sqlalchemy.inspect(db.engine)
+            tables = inspector.get_table_names()
+            html += f"<p><strong>Tables found:</strong> {len(tables)}</p>"
+            if tables:
+                html += "<ul>"
+                for table in tables:
+                    html += f"<li>{table}</li>"
+                html += "</ul>"
+            
+            # Count records
+            user_count = User.query.count()
+            subject_count = Subject.query.count()
+            html += f"<p><strong>Users:</strong> {user_count}</p>"
+            html += f"<p><strong>Subjects:</strong> {subject_count}</p>"
+            
+            if user_count == 0 and subject_count == 0:
+                html += "<p style='color: red'>❌ Database appears empty!</p>"
+                html += f'<p><a href="/force-init">Click here to initialize database</a></p>'
+            else:
+                html += "<p style='color: green'>✅ Database has data!</p>"
+                
+    except Exception as e:
+        html += f"<p style='color: red'>❌ Error checking database: {str(e)}</p>"
+    
+    return html
+@app.route('/force-init')
+def force_initialize():
+    """Force initialize the database"""
+    try:
+        with app.app_context():
+            # Drop all tables and recreate
+            db.drop_all()
+            db.create_all()
+            
+            # Run your init function
+            init_database()
+            
+            return """
+            <h1>Database Force Initialized! ✅</h1>
+            <p>All tables have been recreated.</p>
+            <p>✅ Admin user created: admin@threefoldventures.com / admin123</p>
+            <p>✅ 9 subjects created with demo lessons</p>
+            <p><a href="/">Go to Homepage</a> | <a href="/check-init">Check Database</a></p>
+            <p style="color: orange">⚠️ Note: This route will be removed in production</p>
+            """
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1>"
+
 
 # ============ ERROR HANDLERS ============
 @app.errorhandler(404)
@@ -1779,21 +1846,57 @@ def setup_database():
     except Exception as e:
         return f"<h1>Error: {str(e)}</h1>"
 
-@app.route('/test-db')
-def test_database():
-    """Test database connection"""
-    try:
-        db.session.execute('SELECT 1')
-        return "Database connected successfully!"
-    except Exception as e:
-        return f"Database error: {str(e)}"
-        
-# ============ RUN APPLICATION ============
+# ============ AUTO-INITIALIZE DATABASE ON STARTUP ============
+def initialize_on_startup():
+    """Initialize database when the app starts"""
+    print("🚀 App starting - checking database...")
+    
+    with app.app_context():
+        try:
+            # Check if DATABASE_URL is set (for Render)
+            db_url = os.environ.get('DATABASE_URL')
+            if db_url:
+                print(f"📦 DATABASE_URL found: {db_url[:30]}...")
+                if db_url.startswith('postgres://'):
+                    db_url = db_url.replace('postgres://', 'postgresql://', 1)
+                    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+                    print("✅ Fixed PostgreSQL URL format")
+            
+            # Check if tables exist by trying to query
+            try:
+                # This will fail if tables don't exist
+                db.session.execute('SELECT 1 FROM user LIMIT 1')
+                print("✅ Database tables already exist")
+                
+                # Check if we have data
+                user_count = db.session.query(User).count()
+                subject_count = db.session.query(Subject).count()
+                print(f"📊 Database has {user_count} users and {subject_count} subjects")
+                
+                if user_count == 0 or subject_count == 0:
+                    print("⚠️ Database exists but has no data - running init...")
+                    init_database()
+                
+            except Exception as e:
+                print(f"⚠️ Tables don't exist or error: {e}")
+                print("🔄 Creating tables and initializing data...")
+                init_database()
+                
+        except Exception as e:
+            print(f"❌ Critical database error: {e}")
+            # Try one more time with simple create_all
+            try:
+                db.create_all()
+                print("✅ Created tables as fallback")
+            except:
+                print("❌ Could not create tables")
+
+# Run initialization when app imports
+print("🔧 Running database initialization...")
+initialize_on_startup()
+print("✅ App initialization complete!")
+
 # ============ RUN APPLICATION ============
 if __name__ == '__main__':
-    with app.app_context():
-        init_database()
-
-    # For Render deployment
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
