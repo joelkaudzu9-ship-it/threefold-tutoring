@@ -2,9 +2,242 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1e40af">
+    
+    <title>{% block title %}TFV Tutoring{% endblock %}</title>
+    
+    <!-- MAIN MOBILE CSS -->
+    <link rel="stylesheet" href="/static/mobile-base.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+    
+    {% block head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span class="logo-text">TFV Tutoring</span>
+                <span class="logo-short">TFV</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="/courses" class="{% if 'courses' in request.path %}active{% endif %}">
+                    <i class="fas fa-book"></i> Courses
+                </a>
+                <a href="/pricing" class="{% if 'pricing' in request.path %}active{% endif %}">
+                    <i class="fas fa-tag"></i> Pricing
+                </a>
+                {% if current_user.is_authenticated %}
+                    <a href="/dashboard" class="{% if 'dashboard' in request.path %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/profile" class="{% if 'profile' in request.path %}active{% endif %}">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a href="/logout" class="btn-primary btn-nav">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="/login" class="btn-primary btn-nav">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav" id="mobileNav">
+                <div class="mobile-nav-header">
+                    <div class="mobile-user-info">
+                        {% if current_user.is_authenticated %}
+                        <div class="mobile-avatar">
+                            {{ current_user.name[0] if current_user.name else 'U' }}
+                        </div>
+                        <div class="mobile-user-details">
+                            <strong>{{ current_user.name or 'User' }}</strong>
+                            <small>{{ current_user.email }}</small>
+                        </div>
+                        {% else %}
+                        <div class="mobile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="mobile-user-details">
+                            <strong>Guest User</strong>
+                            <small>Sign in to access more</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <button class="mobile-nav-close" id="mobileNavClose">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="mobile-nav-links">
+                    <a href="/" class="mobile-nav-link {% if request.path == '/' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="/courses" class="mobile-nav-link {% if 'courses' in request.path %}active{% endif %}">
+                        <i class="fas fa-book"></i> Courses
+                    </a>
+                    <a href="/pricing" class="mobile-nav-link {% if 'pricing' in request.path %}active{% endif %}">
+                        <i class="fas fa-tag"></i> Pricing
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="/dashboard" class="mobile-nav-link {% if 'dashboard' in request.path %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/profile" class="mobile-nav-link {% if 'profile' in request.path %}active{% endif %}">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a href="/bursary-application" class="mobile-nav-link">
+                        <i class="fas fa-hand-holding-usd"></i> Bursary
+                    </a>
+                    <div class="mobile-nav-divider"></div>
+                    <a href="/logout" class="mobile-nav-link mobile-nav-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                    {% else %}
+                    <div class="mobile-nav-divider"></div>
+                    <a href="/login" class="mobile-nav-link mobile-nav-btn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                    <a href="/register" class="mobile-nav-link mobile-nav-btn secondary">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="mobile-nav-footer">
+                    <small>&copy; 2024 TFV Tutoring</small>
+                </div>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Main Content -->
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            <div class="flash-content">
+                                <i class="flash-icon fas 
+                                    {% if category == 'success' %}fa-check-circle
+                                    {% elif category == 'error' %}fa-exclamation-circle
+                                    {% elif category == 'warning' %}fa-exclamation-triangle
+                                    {% else %}fa-info-circle{% endif %}">
+                                </i>
+                                <span class="flash-text">{{ message }}</span>
+                            </div>
+                            <button class="flash-close" aria-label="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3 class="footer-logo">
+                        <i class="fas fa-graduation-cap"></i> TFV Tutoring
+                    </h3>
+                    <p class="footer-description">
+                        Quality education for everyone, everywhere. Accessible on all devices.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="/" class="footer-link">Home</a>
+                    <a href="/courses" class="footer-link">Courses</a>
+                    <a href="/pricing" class="footer-link">Pricing</a>
+                    <a href="/bursary-application" class="footer-link">Bursary</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="/help" class="footer-link">Help Center</a>
+                    <a href="/contact" class="footer-link">Contact Us</a>
+                    <a href="/privacy" class="footer-link">Privacy Policy</a>
+                    <a href="/terms" class="footer-link">Terms of Service</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p class="footer-contact">
+                        <i class="fas fa-envelope"></i> support@tfvtutoring.com
+                    </p>
+                    <p class="footer-contact">
+                        <i class="fas fa-phone"></i> (555) 123-4567
+                    </p>
+                    <p class="footer-contact">
+                        <i class="fas fa-map-marker-alt"></i> 123 Education St
+                    </p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 TFV Tutoring. All rights reserved.</p>
+                <p class="footer-mobile-note">
+                    <i class="fas fa-mobile-alt"></i> Optimized for mobile devices
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile JavaScript -->
+    <script src="/static/mobile-base.js"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Content Protection -->
+    {% if 'lesson' in request.path or 'course' in request.path %}
+    <script src="/static/content-protection.js"></script>
+    {% endif %}
 </body>
 </html>
