@@ -1,8 +1,13 @@
+import os
+import sys
+
+# Add the current directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, session, abort, flash,send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
-import os
 from dotenv import load_dotenv
 load_dotenv()
 import requests
@@ -15,15 +20,39 @@ import random
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'three-fold-ventures-secret-key-2024'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///threefold.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///threefold.db').replace('postgres://', 'postgresql://', 1)
 
+# ============ PRODUCTION CONFIGURATION ============
+# Get database URL from environment (for production) or use SQLite locally
+database_url = os.environ.get('DATABASE_URL')
+
+# Fix for Heroku/Render PostgreSQL URL format
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///threefold.db'
+
+# Secret key from environment or fallback (change in production!)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'three-fold-ventures-secret-key-2024')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# File upload configuration
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'static/uploads')
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
 
+# Production security settings
+if os.environ.get('FLASK_ENV') == 'production' or os.environ.get('RENDER'):
+    app.config['DEBUG'] = False
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    # Disable SQLAlchemy pool for Render
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_recycle': 300,
+        'pool_pre_ping': True,
+    }
+else:
+    app.config['DEBUG'] = True
 # Create upload folder
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
