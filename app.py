@@ -17,7 +17,6 @@ import uuid
 from werkzeug.utils import secure_filename
 from functools import wraps
 import random
-from app import app, db
 from sqlalchemy import text
 
 # Initialize Flask app
