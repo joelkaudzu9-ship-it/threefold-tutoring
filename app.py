@@ -95,8 +95,8 @@ class Subject(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Add relationship for lessons
-    lessons = db.relationship('Lesson', backref='subject_obj', lazy=True, cascade='all, delete-orphan')
+    # FIXED: Changed back to 'subject' for proper relationship
+    lessons = db.relationship('Lesson', backref='subject', lazy=True, cascade='all, delete-orphan')
 
 
 class Lesson(db.Model):
@@ -233,6 +233,38 @@ with app.app_context():
                 for subj_data in subjects_data:
                     subject = Subject(**subj_data)
                     db.session.add(subject)
+                    
+                    # Add demo lessons for each subject
+                    demo_videos = {
+                        'Mathematics': 'https://www.youtube.com/embed/Kp2bYWRQylk',
+                        'Chemistry': 'https://www.youtube.com/embed/ulyopnxjAZ8',
+                        'Physics': 'https://www.youtube.com/embed/D2FMV-2RwDk',
+                        'Agriculture': 'https://www.youtube.com/embed/LqvcAs5PVWQ',
+                        'Biology': 'https://www.youtube.com/embed/IBaXkgwi7kc',
+                        'English': 'https://www.youtube.com/embed/s9shPouRWCs',
+                        'Chichewa': 'https://www.youtube.com/embed/5Q98rYbOPag',
+                        'Geography': 'https://www.youtube.com/embed/WwNuvGLblJU',
+                        'History': 'https://www.youtube.com/embed/yqrR1dGqNp0'
+                    }
+                    
+                    video_url = demo_videos.get(subject.name, 'https://www.youtube.com/embed/dQw4w9WgXcQ')
+                    
+                    # Create 4 demo lessons
+                    for week in range(1, 3):
+                        for day in range(1, 3):
+                            lesson = Lesson(
+                                subject_id=subject.id,
+                                title=f"Week {week}, Day {day}: {subject.name} Basics",
+                                description=f"Introduction to {subject.name.lower()} concepts for beginners.",
+                                week_number=week,
+                                day_number=day,
+                                content_type='youtube',
+                                external_url=video_url,
+                                duration=45,
+                                order=day,
+                                is_published=True
+                            )
+                            db.session.add(lesson)
             
             db.session.commit()
             print("✅ Initial data added")
@@ -537,7 +569,8 @@ def view_lesson(lesson_id):
     elif lesson.content_type == 'document' and lesson.file_path:
         content = {'type': 'document', 'url': lesson.file_path, 'filename': lesson.file_path.split('/')[-1]}
     else:
-        content = {'type': 'youtube', 'url': get_demo_video(lesson.subject_obj.name)}
+        # FIXED: Now uses lesson.subject (not lesson.subject_obj)
+        content = {'type': 'youtube', 'url': get_demo_video(lesson.subject.name)}
 
     return render_template('lesson.html',
                          lesson=lesson,
@@ -815,95 +848,6 @@ def payment_success():
     ).order_by(Payment.created_at.desc()).first()
 
     return render_template('payment_success.html', payment=payment)
-
-
-@app.route('/check-init')
-def check_init():
-    info = {
-        'Database URI': app.config.get('SQLALCHEMY_DATABASE_URI', 'NOT SET'),
-        'DATABASE_URL env': os.environ.get('DATABASE_URL', 'NOT SET'),
-        'On Render?': 'RENDER' in os.environ,
-    }
-    
-    html = "<h1>Database Initialization Check</h1>"
-    for key, value in info.items():
-        html += f"<p><strong>{key}:</strong> {value}</p>"
-    
-    try:
-        with app.app_context():
-            user_count = User.query.count()
-            subject_count = Subject.query.count()
-            html += f"<p><strong>Users:</strong> {user_count}</p>"
-            html += f"<p><strong>Subjects:</strong> {subject_count}</p>"
-            
-            if user_count == 0 and subject_count == 0:
-                html += "<p style='color: red'>❌ Database appears empty!</p>"
-                html += f'<p><a href="/force-init">Click here to initialize database</a></p>'
-            else:
-                html += "<p style='color: green'>✅ Database has data!</p>"
-                
-    except Exception as e:
-        html += f"<p style='color: red'>❌ Error checking database: {str(e)}</p>"
-    
-    return html
-
-
-@app.route('/force-init')
-def force_initialize():
-    try:
-        with app.app_context():
-            db.drop_all()
-            db.create_all()
-            
-            # Create admin
-            hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
-            admin = User(
-                email='admin@threefoldventures.com',
-                password=hashed_password,
-                name='Administrator',
-                phone='0888123456',
-                is_admin=True
-            )
-            db.session.add(admin)
-            
-            # Create subjects
-            subjects_data = [
-                {'name': 'Mathematics', 'code': 'MATH', 'icon': 'fas fa-calculator', 'color': '#3B82F6',
-                 'description': 'Master mathematical concepts from basics to advanced topics'},
-                {'name': 'Chemistry', 'code': 'CHEM', 'icon': 'fas fa-flask', 'color': '#10B981',
-                 'description': 'Learn chemical reactions, formulas, and laboratory techniques'},
-                {'name': 'Physics', 'code': 'PHYS', 'icon': 'fas fa-atom', 'color': '#EF4444',
-                 'description': 'Understand the laws of motion, energy, and the physical world'},
-                {'name': 'Agriculture', 'code': 'AGRI', 'icon': 'fas fa-tractor', 'color': '#8B5CF6',
-                 'description': 'Modern farming techniques and agricultural science'},
-                {'name': 'Biology', 'code': 'BIOL', 'icon': 'fas fa-dna', 'color': '#059669',
-                 'description': 'Study of living organisms and life processes'},
-                {'name': 'English', 'code': 'ENGL', 'icon': 'fas fa-book', 'color': '#DC2626',
-                 'description': 'Master English language, literature, and communication skills'},
-                {'name': 'Chichewa', 'code': 'CHIC', 'icon': 'fas fa-language', 'color': '#F59E0B',
-                 'description': 'Malawi national language - reading, writing, and speaking'},
-                {'name': 'Geography', 'code': 'GEOG', 'icon': 'fas fa-globe-africa', 'color': '#6366F1',
-                 'description': 'Study of Earth, landscapes, and human-environment interaction'},
-                {'name': 'History', 'code': 'HIST', 'icon': 'fas fa-landmark', 'color': '#8B5CF6',
-                 'description': 'Explore historical events and their impact on modern society'},
-            ]
-            
-            for subj_data in subjects_data:
-                subject = Subject(**subj_data)
-                db.session.add(subject)
-            
-            db.session.commit()
-            
-            return """
-            <h1>Database Force Initialized! ✅</h1>
-            <p>All tables have been recreated.</p>
-            <p>✅ Admin user created: admin@threefoldventures.com / admin123</p>
-            <p>✅ 9 subjects created</p>
-            <p><a href="/">Go to Homepage</a> | <a href="/check-init">Check Database</a></p>
-            <p style="color: orange">⚠️ Note: This route will be removed in production</p>
-            """
-    except Exception as e:
-        return f"<h1>Error: {str(e)}</h1>"
 
 
 # ============ ADMIN ROUTES ============
@@ -1299,6 +1243,129 @@ def edit_lesson(lesson_id):
 
     subjects = Subject.query.all()
     return render_template('admin_edit_lesson.html', lesson=lesson, subjects=subjects)
+
+
+@app.route('/check-init')
+def check_init():
+    info = {
+        'Database URI': app.config.get('SQLALCHEMY_DATABASE_URI', 'NOT SET'),
+        'DATABASE_URL env': os.environ.get('DATABASE_URL', 'NOT SET'),
+        'On Render?': 'RENDER' in os.environ,
+    }
+    
+    html = "<h1>Database Initialization Check</h1>"
+    for key, value in info.items():
+        html += f"<p><strong>{key}:</strong> {value}</p>"
+    
+    try:
+        with app.app_context():
+            user_count = User.query.count()
+            subject_count = Subject.query.count()
+            lesson_count = Lesson.query.count()
+            html += f"<p><strong>Users:</strong> {user_count}</p>"
+            html += f"<p><strong>Subjects:</strong> {subject_count}</p>"
+            html += f"<p><strong>Lessons:</strong> {lesson_count}</p>"
+            
+            if user_count == 0 and subject_count == 0:
+                html += "<p style='color: red'>❌ Database appears empty!</p>"
+                html += f'<p><a href="/force-init">Click here to initialize database</a></p>'
+            else:
+                html += "<p style='color: green'>✅ Database has data!</p>"
+                
+    except Exception as e:
+        html += f"<p style='color: red'>❌ Error checking database: {str(e)}</p>"
+    
+    return html
+
+
+@app.route('/force-init')
+def force_initialize():
+    try:
+        with app.app_context():
+            db.drop_all()
+            db.create_all()
+            
+            # Create admin
+            hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
+            admin = User(
+                email='admin@threefoldventures.com',
+                password=hashed_password,
+                name='Administrator',
+                phone='0888123456',
+                is_admin=True
+            )
+            db.session.add(admin)
+            
+            # Create subjects with lessons
+            subjects_data = [
+                {'name': 'Mathematics', 'code': 'MATH', 'icon': 'fas fa-calculator', 'color': '#3B82F6',
+                 'description': 'Master mathematical concepts from basics to advanced topics'},
+                {'name': 'Chemistry', 'code': 'CHEM', 'icon': 'fas fa-flask', 'color': '#10B981',
+                 'description': 'Learn chemical reactions, formulas, and laboratory techniques'},
+                {'name': 'Physics', 'code': 'PHYS', 'icon': 'fas fa-atom', 'color': '#EF4444',
+                 'description': 'Understand the laws of motion, energy, and the physical world'},
+                {'name': 'Agriculture', 'code': 'AGRI', 'icon': 'fas fa-tractor', 'color': '#8B5CF6',
+                 'description': 'Modern farming techniques and agricultural science'},
+                {'name': 'Biology', 'code': 'BIOL', 'icon': 'fas fa-dna', 'color': '#059669',
+                 'description': 'Study of living organisms and life processes'},
+                {'name': 'English', 'code': 'ENGL', 'icon': 'fas fa-book', 'color': '#DC2626',
+                 'description': 'Master English language, literature, and communication skills'},
+                {'name': 'Chichewa', 'code': 'CHIC', 'icon': 'fas fa-language', 'color': '#F59E0B',
+                 'description': 'Malawi national language - reading, writing, and speaking'},
+                {'name': 'Geography', 'code': 'GEOG', 'icon': 'fas fa-globe-africa', 'color': '#6366F1',
+                 'description': 'Study of Earth, landscapes, and human-environment interaction'},
+                {'name': 'History', 'code': 'HIST', 'icon': 'fas fa-landmark', 'color': '#8B5CF6',
+                 'description': 'Explore historical events and their impact on modern society'},
+            ]
+            
+            demo_videos = {
+                'Mathematics': 'https://www.youtube.com/embed/Kp2bYWRQylk',
+                'Chemistry': 'https://www.youtube.com/embed/ulyopnxjAZ8',
+                'Physics': 'https://www.youtube.com/embed/D2FMV-2RwDk',
+                'Agriculture': 'https://www.youtube.com/embed/LqvcAs5PVWQ',
+                'Biology': 'https://www.youtube.com/embed/IBaXkgwi7kc',
+                'English': 'https://www.youtube.com/embed/s9shPouRWCs',
+                'Chichewa': 'https://www.youtube.com/embed/5Q98rYbOPag',
+                'Geography': 'https://www.youtube.com/embed/WwNuvGLblJU',
+                'History': 'https://www.youtube.com/embed/yqrR1dGqNp0'
+            }
+            
+            for subj_data in subjects_data:
+                subject = Subject(**subj_data)
+                db.session.add(subject)
+                db.session.flush()  # Get the subject ID
+                
+                video_url = demo_videos.get(subject.name, 'https://www.youtube.com/embed/dQw4w9WgXcQ')
+                
+                # Create demo lessons
+                for week in range(1, 3):
+                    for day in range(1, 3):
+                        lesson = Lesson(
+                            subject_id=subject.id,
+                            title=f"Week {week}, Day {day}: {subject.name} Introduction",
+                            description=f"Basic concepts and introduction to {subject.name.lower()}.",
+                            week_number=week,
+                            day_number=day,
+                            content_type='youtube',
+                            external_url=video_url,
+                            duration=45,
+                            order=day,
+                            is_published=True
+                        )
+                        db.session.add(lesson)
+            
+            db.session.commit()
+            
+            return """
+            <h1>Database Force Initialized! ✅</h1>
+            <p>All tables have been recreated.</p>
+            <p>✅ Admin user created: admin@threefoldventures.com / admin123</p>
+            <p>✅ 9 subjects created with demo lessons</p>
+            <p><a href="/">Go to Homepage</a> | <a href="/check-init">Check Database</a></p>
+            <p style="color: orange">⚠️ Note: This route will be removed in production</p>
+            """
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1>"
 
 
 # ============ ERROR HANDLERS ============
