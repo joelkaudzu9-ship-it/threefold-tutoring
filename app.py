@@ -17,6 +17,8 @@ import uuid
 from werkzeug.utils import secure_filename
 from functools import wraps
 import random
+from app import app, db
+from sqlalchemy import text
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -68,6 +70,8 @@ login_manager.login_view = 'login'
 
 # ============ DATABASE MODELS ============
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'  # Explicit table name to avoid PostgreSQL reserved word issues
+    
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
@@ -80,14 +84,15 @@ class User(UserMixin, db.Model):
 
     # Relationships - UPDATED
     enrollments = db.relationship('Enrollment', backref='user', lazy=True, cascade='all, delete-orphan')
-    payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')  # ✅ Keep this as is
+    payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
     progress_records = db.relationship('Progress', backref='user', lazy=True)
 
 
 class Subject(db.Model):
+    __tablename__ = 'subjects'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
-    code = db.Column(db.String(10), unique=True)
+    code = db.Column(db.String(20), unique=True)  # Changed from 10 to 20
     description = db.Column(db.Text)
     icon = db.Column(db.String(50))
     color = db.Column(db.String(10), default='#4f46e5')
@@ -100,6 +105,7 @@ class Subject(db.Model):
 
 
 class Lesson(db.Model):
+    __tablename__ = 'lessons'
     id = db.Column(db.Integer, primary_key=True)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
@@ -119,6 +125,8 @@ class Lesson(db.Model):
 
 
 class Enrollment(db.Model):
+    __tablename__ = 'enrollments'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
@@ -131,6 +139,8 @@ class Enrollment(db.Model):
 
 
 class Progress(db.Model):
+    __tablename__ = 'progress'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
@@ -141,6 +151,7 @@ class Progress(db.Model):
 
 
 class Payment(db.Model):
+    __tablename__ = 'payments'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
@@ -164,7 +175,37 @@ class Payment(db.Model):
     verified_by = db.Column(db.Integer)  # Just store user ID, NOT a foreign key
     verified_at = db.Column(db.DateTime)
     notes = db.Column(db.Text)
+    
+def migrate_to_postgres():
+    """Migrate database schema for PostgreSQL compatibility"""
+    with app.app_context():
+        print("🔄 Migrating database for PostgreSQL...")
+        
+        try:
+            # Check if we're using PostgreSQL
+            db_url = app.config['SQLALCHEMY_DATABASE_URI']
+            if 'postgresql' not in db_url:
+                print("❌ Not using PostgreSQL, skipping migration")
+                return
+            
+            # Create tables with new schema
+            db.create_all()
+            print("✅ Tables created with PostgreSQL schema")
+            
+            # Check if we have existing data
+            try:
+                # Try new table name
+                user_count = db.session.execute(text('SELECT COUNT(*) FROM users')).scalar()
+                print(f"📊 Found {user_count} users in new schema")
+            except:
+                print("📝 No existing data found")
+                
+        except Exception as e:
+            print(f"❌ Migration error: {e}")
+            db.session.rollback()
 
+if __name__ == '__main__':
+    migrate_to_postgres()
 
 # ============ HELPER FUNCTIONS ============
 @login_manager.user_loader
@@ -1848,54 +1889,62 @@ def setup_database():
 
 # ============ AUTO-INITIALIZE DATABASE ON STARTUP ============
 def initialize_on_startup():
-    """Initialize database when the app starts"""
-    print("🚀 App starting - checking database...")
+    """Initialize database when the app starts - PostgreSQL compatible"""
+    print("🔧 Checking database setup...")
     
     with app.app_context():
         try:
-            # Check if DATABASE_URL is set (for Render)
-            db_url = os.environ.get('DATABASE_URL')
-            if db_url:
-                print(f"📦 DATABASE_URL found: {db_url[:30]}...")
-                if db_url.startswith('postgres://'):
-                    db_url = db_url.replace('postgres://', 'postgresql://', 1)
-                    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-                    print("✅ Fixed PostgreSQL URL format")
+            # Check if we're using PostgreSQL
+            db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+            is_postgres = 'postgresql' in db_url
             
-            # Check if tables exist by trying to query
-            try:
-                # This will fail if tables don't exist
-                from sqlalchemy import text
-                db.session.execute(text('SELECT 1 FROM user LIMIT 1'))
-                print("✅ Database tables already exist")
+            if is_postgres:
+                print("✅ Using PostgreSQL database")
+                
+                # For PostgreSQL, always create tables (safe operation)
+                db.create_all()
+                print("✅ PostgreSQL tables verified")
                 
                 # Check if we have data
-                user_count = db.session.query(User).count()
-                subject_count = db.session.query(Subject).count()
-                print(f"📊 Database has {user_count} users and {subject_count} subjects")
-                
-                if user_count == 0 or subject_count == 0:
-                    print("⚠️ Database exists but has no data - running init...")
+                try:
+                    # Use text() for raw SQL
+                    from sqlalchemy import text
+                    user_count = db.session.execute(text('SELECT COUNT(*) FROM users')).scalar()
+                    subject_count = db.session.execute(text('SELECT COUNT(*) FROM subjects')).scalar()
+                    
+                    print(f"📊 Database has {user_count} users and {subject_count} subjects")
+                    
+                    if user_count == 0 or subject_count == 0:
+                        print("🔄 Adding initial data...")
+                        init_database()
+                        
+                except Exception as e:
+                    print(f"📝 First run or schema mismatch: {e}")
+                    print("🔄 Creating initial data...")
                     init_database()
-                
-            except Exception as e:
-                print(f"⚠️ Tables don't exist or error: {e}")
-                print("🔄 Creating tables and initializing data...")
-                init_database()
-                
+                    
+            else:
+                # SQLite logic (for local development)
+                print("⚠️ Using SQLite (development mode)")
+                try:
+                    user_count = User.query.count()
+                    subject_count = Subject.query.count()
+                    
+                    if user_count == 0 or subject_count == 0:
+                        init_database()
+                        
+                except:
+                    db.create_all()
+                    init_database()
+                    
         except Exception as e:
-            print(f"❌ Critical database error: {e}")
-            # Try one more time with simple create_all
+            print(f"❌ Database initialization error: {e}")
+            # Try to create tables anyway
             try:
                 db.create_all()
                 print("✅ Created tables as fallback")
             except:
                 print("❌ Could not create tables")
-
-# Run initialization when app imports
-print("🔧 Running database initialization...")
-initialize_on_startup()
-print("✅ App initialization complete!")
 
 # ============ RUN APPLICATION ============
 if __name__ == '__main__':
