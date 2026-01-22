@@ -68,9 +68,10 @@ login_manager.login_view = 'login'
 
 
 # ============ DATABASE MODELS ============
+# ============ DATABASE MODELS ============
 class User(UserMixin, db.Model):
     __tablename__ = 'users'  # Explicit table name to avoid PostgreSQL reserved word issues
-    
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
@@ -81,10 +82,11 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships - UPDATED
-    enrollments = db.relationship('Enrollment', backref='user', lazy=True, cascade='all, delete-orphan')
-    payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
-    progress_records = db.relationship('Progress', backref='user', lazy=True)
+    # Relationships - REMOVED backref, will define on other models
+    # Remove these lines entirely:
+    # enrollments = db.relationship('Enrollment', backref='user', lazy=True, cascade='all, delete-orphan')
+    # payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
+    # progress_records = db.relationship('Progress', backref='user', lazy=True)
 
 
 class Subject(db.Model):
@@ -98,15 +100,16 @@ class Subject(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
-    lessons = db.relationship('Lesson', backref='subject', lazy=True, cascade='all, delete-orphan')
-    enrollments = db.relationship('Enrollment', backref='subject', lazy=True, cascade='all, delete-orphan')
+    # Relationships - REMOVED backref
+    # Remove this line:
+    # lessons = db.relationship('Lesson', backref='subject', lazy=True, cascade='all, delete-orphan')
+    # enrollments = db.relationship('Enrollment', backref='subject', lazy=True, cascade='all, delete-orphan')
 
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'
     id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)  # Fixed foreign key
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     week_number = db.Column(db.Integer)
@@ -119,19 +122,24 @@ class Lesson(db.Model):
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
-    progress = db.relationship('Progress', backref='lesson', lazy=True, cascade='all, delete-orphan')
+    # Relationships - REMOVED backref
+    # Remove this line:
+    # progress = db.relationship('Progress', backref='lesson', lazy=True, cascade='all, delete-orphan')
 
 
 class Enrollment(db.Model):
     __tablename__ = 'enrollments'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Fixed: 'users.id' not 'user.id'
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)  # Fixed: 'subjects.id'
     enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='active')  # active, paused, completed
     last_accessed = db.Column(db.DateTime)
+
+    # Relationships - Add backrefs HERE instead of in User/Subject models
+    user = db.relationship('User', backref='enrollments', lazy=True)
+    subject = db.relationship('Subject', backref='enrollments', lazy=True)
 
     # Unique constraint
     __table_args__ = (db.UniqueConstraint('user_id', 'subject_id', name='unique_user_subject'),)
@@ -141,18 +149,22 @@ class Progress(db.Model):
     __tablename__ = 'progress'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Fixed: 'users.id'
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)  # Fixed: 'lessons.id'
     completed = db.Column(db.Boolean, default=False)
     percentage = db.Column(db.Integer, default=0)
     last_position = db.Column(db.Integer, default=0)  # For video/audio
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Relationships - Add backrefs HERE
+    user = db.relationship('User', backref='progress_records', lazy=True)
+    lesson = db.relationship('Lesson', backref='progress', lazy=True)
+
 
 class Payment(db.Model):
     __tablename__ = 'payments'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Fixed: 'users.id'
     amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(10), default='MWK')
     weeks = db.Column(db.Integer, default=1)
@@ -169,42 +181,16 @@ class Payment(db.Model):
     phone_number = db.Column(db.String(20))
     callback_data = db.Column(db.Text)
 
-    # Verification fields (SIMPLE VERSION - no foreign key for now)
+    # Verification fields
     proof_path = db.Column(db.String(500))
-    verified_by = db.Column(db.Integer)  # Just store user ID, NOT a foreign key
+    verified_by = db.Column(db.Integer)
     verified_at = db.Column(db.DateTime)
     notes = db.Column(db.Text)
-    
-def migrate_to_postgres():
-    """Migrate database schema for PostgreSQL compatibility"""
-    with app.app_context():
-        print("🔄 Migrating database for PostgreSQL...")
-        
-        try:
-            # Check if we're using PostgreSQL
-            db_url = app.config['SQLALCHEMY_DATABASE_URI']
-            if 'postgresql' not in db_url:
-                print("❌ Not using PostgreSQL, skipping migration")
-                return
-            
-            # Create tables with new schema
-            db.create_all()
-            print("✅ Tables created with PostgreSQL schema")
-            
-            # Check if we have existing data
-            try:
-                # Try new table name
-                user_count = db.session.execute(text('SELECT COUNT(*) FROM users')).scalar()
-                print(f"📊 Found {user_count} users in new schema")
-            except:
-                print("📝 No existing data found")
-                
-        except Exception as e:
-            print(f"❌ Migration error: {e}")
-            db.session.rollback()
 
-if __name__ == '__main__':
-    migrate_to_postgres()
+    # Relationship - Add backref HERE
+    user = db.relationship('User', backref='payments', lazy=True)
+    
+
 
 # ============ HELPER FUNCTIONS ============
 @login_manager.user_loader
@@ -1944,6 +1930,7 @@ def initialize_on_startup():
                 print("✅ Created tables as fallback")
             except:
                 print("❌ Could not create tables")
+            initialize_on_startup()
 
 # ============ RUN APPLICATION ============
 if __name__ == '__main__':
