@@ -1761,7 +1761,23 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_KEY_PREFIX'] = 'tfv_'
 
-
+@app.route('/setup-db')
+def setup_database():
+    """Initialize database tables and create admin user"""
+    try:
+        with app.app_context():
+            db.create_all()
+            init_database()
+        return """
+        <h1>Database Initialized Successfully!</h1>
+        <p>✅ Tables created</p>
+        <p>✅ Admin user created (admin@threefoldventures.com / admin123)</p>
+        <p>✅ Demo subjects and lessons added</p>
+        <p><a href="/">Go to Homepage</a></p>
+        <p><strong>IMPORTANT:</strong> Remove this route after use!</p>
+        """
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1>"
 # ============ RUN APPLICATION ============
 # ============ RUN APPLICATION ============
 if __name__ == '__main__':
