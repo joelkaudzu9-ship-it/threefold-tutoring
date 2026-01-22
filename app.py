@@ -1873,64 +1873,41 @@ def setup_database():
         return f"<h1>Error: {str(e)}</h1>"
 
 # ============ AUTO-INITIALIZE DATABASE ON STARTUP ============
+# ============ AUTO-INITIALIZE DATABASE ON STARTUP ============
 def initialize_on_startup():
     """Initialize database when the app starts - PostgreSQL compatible"""
     print("🔧 Checking database setup...")
     
-    with app.app_context():
-        try:
-            # Check if we're using PostgreSQL
-            db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
-            is_postgres = 'postgresql' in db_url
+    try:
+        with app.app_context():
+            # Create tables if they don't exist
+            print("🔄 Creating tables...")
+            db.create_all()
+            print("✅ Tables created/verified")
             
-            if is_postgres:
-                print("✅ Using PostgreSQL database")
-                
-                # For PostgreSQL, always create tables (safe operation)
-                db.create_all()
-                print("✅ PostgreSQL tables verified")
-                
-                # Check if we have data
-                try:
-                    # Use text() for raw SQL
-                    from sqlalchemy import text
-                    user_count = db.session.execute(text('SELECT COUNT(*) FROM users')).scalar()
-                    subject_count = db.session.execute(text('SELECT COUNT(*) FROM subjects')).scalar()
-                    
-                    print(f"📊 Database has {user_count} users and {subject_count} subjects")
-                    
-                    if user_count == 0 or subject_count == 0:
-                        print("🔄 Adding initial data...")
-                        init_database()
-                        
-                except Exception as e:
-                    print(f"📝 First run or schema mismatch: {e}")
-                    print("🔄 Creating initial data...")
-                    init_database()
-                    
-            else:
-                # SQLite logic (for local development)
-                print("⚠️ Using SQLite (development mode)")
-                try:
-                    user_count = User.query.count()
-                    subject_count = Subject.query.count()
-                    
-                    if user_count == 0 or subject_count == 0:
-                        init_database()
-                        
-                except:
-                    db.create_all()
-                    init_database()
-                    
-        except Exception as e:
-            print(f"❌ Database initialization error: {e}")
-            # Try to create tables anyway
+            # Check if we need to add initial data
             try:
-                db.create_all()
-                print("✅ Created tables as fallback")
-            except:
-                print("❌ Could not create tables")
-            initialize_on_startup()
+                user_count = db.session.query(User).count()
+                subject_count = db.session.query(Subject).count()
+                print(f"📊 Found {user_count} users and {subject_count} subjects")
+                
+                if user_count == 0 or subject_count == 0:
+                    print("🔄 Adding initial data...")
+                    init_database()
+                    print("✅ Initial data added")
+            except Exception as e:
+                print(f"📝 Error checking data: {e}")
+                print("🔄 Adding initial data...")
+                init_database()
+                print("✅ Initial data added")
+                
+    except Exception as e:
+        print(f"❌ Database initialization error: {e}")
+        import traceback
+        traceback.print_exc()
+
+# Call initialization at startup
+initialize_on_startup()
 
 # ============ RUN APPLICATION ============
 if __name__ == '__main__':
