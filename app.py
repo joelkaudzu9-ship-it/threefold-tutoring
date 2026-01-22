@@ -1865,7 +1865,8 @@ def initialize_on_startup():
             # Check if tables exist by trying to query
             try:
                 # This will fail if tables don't exist
-                db.session.execute('SELECT 1 FROM user LIMIT 1')
+                from sqlalchemy import text
+                db.session.execute(text('SELECT 1 FROM user LIMIT 1'))
                 print("✅ Database tables already exist")
                 
                 # Check if we have data
