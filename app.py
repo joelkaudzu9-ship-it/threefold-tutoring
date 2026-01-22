@@ -1778,6 +1778,16 @@ def setup_database():
         """
     except Exception as e:
         return f"<h1>Error: {str(e)}</h1>"
+
+@app.route('/test-db')
+def test_database():
+    """Test database connection"""
+    try:
+        db.session.execute('SELECT 1')
+        return "Database connected successfully!"
+    except Exception as e:
+        return f"Database error: {str(e)}"
+        
 # ============ RUN APPLICATION ============
 # ============ RUN APPLICATION ============
 if __name__ == '__main__':
