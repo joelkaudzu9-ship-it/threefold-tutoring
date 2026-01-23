@@ -81,11 +81,15 @@
         <div class="sidebar">
             <div class="user-profile">
                 <div class="user-avatar">
-                    {{ current_user.name[0] if current_user.name else 'S' }}
+                    {% if current_user and current_user.name %}
+                        {{ current_user.name[0]|upper }}
+                    {% else %}
+                        S
+                    {% endif %}
                 </div>
-                <h3>{{ current_user.name or 'Student' }}</h3>
-                <p>{{ current_user.email }}</p>
-                {% if current_user.student_id %}
+                <h3>{{ current_user.name if current_user and current_user.name else 'Student' }}</h3>
+                <p>{{ current_user.email if current_user and current_user.email else 'Not provided' }}</p>
+                {% if current_user and current_user.student_id %}
                 <p><small>ID: {{ current_user.student_id }}</small></p>
                 {% endif %}
             </div>
@@ -114,9 +118,13 @@
             <!-- Payment Status -->
             <div class="payment-status">
                 <h4><i class="fas fa-info-circle"></i> Access Status</h4>
-                {% if payment %}
-                    <p class="status-active">✅ Active until {{ payment.end_date.strftime('%d %b %Y') }}</p>
-                    <p><small>Paid: {{ payment.amount }} MWK for {{ payment.weeks }} week(s)</small></p>
+                {% if payment and payment.status in ['active', 'completed'] %}
+                    {% if payment.end_date %}
+                        <p class="status-active">✅ Active until {{ payment.end_date.strftime('%d %b %Y') }}</p>
+                    {% else %}
+                        <p class="status-active">✅ Active</p>
+                    {% endif %}
+                    <p><small>Paid: {{ payment.amount|format }} MWK for {{ payment.weeks }} week(s)</small></p>
                 {% else %}
                     <p class="status-inactive">❌ No active payment</p>
                     <p><small><a href="/pricing" style="color: #1e40af;">Click here to pay</a></small></p>
@@ -132,15 +140,15 @@
             <!-- Quick Stats -->
             <div class="stats-cards">
                 <div class="stat-card">
-                    <h3>{{ enrollments|length }}</h3>
+                    <h3>{{ enrollments|length if enrollments else 0 }}</h3>
                     <p>Enrolled Subjects</p>
                 </div>
                 <div class="stat-card">
-                    <h3>{{ payment.weeks if payment else 0 }}</h3>
+                    <h3>{{ payment.weeks if payment and payment.weeks else 0 }}</h3>
                     <p>Weeks Paid</p>
                 </div>
                 <div class="stat-card">
-                    <h3>{{ available_subjects|length }}</h3>
+                    <h3>{{ available_subjects|length if available_subjects else 0 }}</h3>
                     <p>Available Subjects</p>
                 </div>
             </div>
@@ -160,34 +168,36 @@
 
             <!-- My Subjects -->
             <h2>My Enrolled Subjects</h2>
-            {% if enrollments %}
+            {% if enrollments and enrollments|length > 0 %}
             <div class="subjects-grid">
                 {% for enrollment in enrollments %}
-                <div class="subject-enrollment-card" style="border-left: 5px solid {{ enrollment.subject.color }};">
+                {% if enrollment and enrollment.subject %}
+                <div class="subject-enrollment-card" style="border-left: 5px solid {{ enrollment.subject.color if enrollment.subject.color else '#1e40af' }};">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <h3>{{ enrollment.subject.name }}</h3>
-                        <span style="background: {{ enrollment.subject.color }}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
-                            {{ enrollment.subject.code }}
+                        <h3>{{ enrollment.subject.name if enrollment.subject.name else 'Unnamed Subject' }}</h3>
+                        <span style="background: {{ enrollment.subject.color if enrollment.subject.color else '#1e40af' }}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                            {{ enrollment.subject.code if enrollment.subject.code else 'N/A' }}
                         </span>
                     </div>
-                    <p>{{ enrollment.subject.description[:100] }}...</p>
+                    <p>{{ enrollment.subject.description[:100] if enrollment.subject and enrollment.subject.description else 'No description available' }}...</p>
 
                     <!-- Progress -->
                     <div style="margin: 1rem 0;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span>Progress</span>
-                            <span>{{ enrollment.progress_percentage }}%</span>
+                            <span>{{ enrollment.progress_percentage if enrollment.progress_percentage is defined else 0 }}%</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: {{ enrollment.progress_percentage }}%"></div>
+                            <div class="progress-fill" style="width: {{ enrollment.progress_percentage if enrollment.progress_percentage is defined else 0 }}%"></div>
                         </div>
                     </div>
 
                     <a href="{{ url_for('subject_detail', subject_id=enrollment.subject.id) }}"
-                       style="background: {{ enrollment.subject.color }}; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; display: inline-block;">
+                       style="background: {{ enrollment.subject.color if enrollment.subject.color else '#1e40af' }}; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; display: inline-block;">
                        Continue Learning →
                     </a>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
             {% else %}
@@ -202,19 +212,21 @@
             {% endif %}
 
             <!-- Available Subjects -->
+            {% if available_subjects and available_subjects|length > 0 %}
             <h2 style="margin-top: 3rem;">Available Subjects</h2>
             <div class="subjects-grid">
-                {% for subject in available_subjects if subject.id not in enrollments|map(attribute='subject_id') %}
+                {% for subject in available_subjects %}
+                {% if subject %}
                 <div class="subject-enrollment-card" style="border: 2px dashed #e5e7eb;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-                        <div style="background: {{ subject.color }}; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="{{ subject.icon }}"></i>
+                        <div style="background: {{ subject.color if subject.color else '#1e40af' }}; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="{{ subject.icon if subject.icon else 'fas fa-book' }}"></i>
                         </div>
-                        <h3>{{ subject.name }}</h3>
+                        <h3>{{ subject.name if subject.name else 'Unnamed Subject' }}</h3>
                     </div>
-                    <p>{{ subject.description[:80] }}...</p>
+                    <p>{{ subject.description[:80] if subject and subject.description else 'No description available' }}...</p>
 
-                    {% if payment %}
+                    {% if payment and payment.status in ['active', 'completed'] %}
                     <a href="{{ url_for('enroll', subject_id=subject.id) }}"
                        style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; display: inline-block; margin-top: 1rem;">
                        Enroll Now
@@ -225,9 +237,20 @@
                     </p>
                     {% endif %}
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
+            {% endif %}
         </div>
     </div>
+
+    <!-- Debug info (remove after testing) -->
+    <div style="display: none; position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px;">
+        <p>Debug Info:</p>
+        <p>Enrollments: {{ enrollments|length if enrollments else 0 }}</p>
+        <p>Available: {{ available_subjects|length if available_subjects else 0 }}</p>
+        <p>Payment: {{ payment.status if payment else 'None' }}</p>
+        <p>User: {{ current_user.name if current_user else 'None' }}</p>
+    </div>
 </body>
-</html>
+                </html>
