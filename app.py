@@ -446,6 +446,34 @@ def logout():
     return redirect(url_for('index'))
 
 
+
+
+
+@app.route('/subjects')
+def subjects():
+    all_subjects = Subject.query.filter_by(is_active=True).all()
+    return render_template('subjects.html', subjects=all_subje     password = request.form['password']
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            if user.is_admin:
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('dashboard'))
+        else:
+            return render_template('login.html', error='Invalid credentials')
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -458,24 +486,31 @@ def dashboard():
     
     # Get user data
     enrollments = Enrollment.query.filter_by(user_id=current_user.id).all()
+    
+    # Get active or completed payment
     payment = Payment.query.filter_by(
-        user_id=current_user.id,
-        status='active'
+        user_id=current_user.id
+    ).filter(
+        Payment.status.in_(['active', 'completed'])
     ).order_by(Payment.created_at.desc()).first()
     
     available_subjects = Subject.query.all()
     
-    # Calculate progress for each enrollment
+    # Fix: Calculate progress for each enrollment
     for enrollment in enrollments:
-        # Your progress calculation logic here
-        enrollment.progress_percentage = calculate_progress(enrollment)
+        enrollment.progress_percentage = calculate_progress(current_user.id, enrollment.subject_id)
+    
+    # Fix: Pass a list of enrolled subject IDs
+    enrolled_subject_ids = [e.subject_id for e in enrollments]
+    
+    # Fix: Get subjects not enrolled yet
+    subjects_to_enroll = [s for s in available_subjects if s.id not in enrolled_subject_ids]
     
     return render_template('dashboard.html',
                          enrollments=enrollments,
                          payment=payment,
-                         available_subjects=available_subjects,
+                         available_subjects=subjects_to_enroll,  # Changed this
                          is_mobile=is_mobile)
-
 
 @app.route('/subjects')
 def subjects():
@@ -494,31 +529,7 @@ def subject_detail(subject_id):
         subject_id=subject_id,
         is_published=True
     ).order_by(Lesson.week_number, Lesson.day_number, Lesson.order).all()
-
-    lessons_by_week = {}
-    for lesson in lessons:
-        week_key = f"Week {lesson.week_number}"
-        if week_key not in lessons_by_week:
-            lessons_by_week[week_key] = []
-        lessons_by_week[week_key].append(lesson)
-
-    enrollment = Enrollment.query.filter_by(
-        user_id=current_user.id,
-        subject_id=subject_id
-    ).first()
-
-    return render_template('subject.html',
-                           subject=subject,
-                           can_access=can_access,
-                           lessons_by_week=lessons_by_week,
-                           enrollment=enrollment,
-                           demo_video=demo_video)
-
-
-@app.route('/enroll/<int:subject_id>')
-@login_required
-def enroll(subject_id):
-    subject = Subject.query.get_or_404(subject_id)
+ct.query.get_or_404(subject_id)
 
     existing = Enrollment.query.filter_by(
         user_id=current_user.id,
