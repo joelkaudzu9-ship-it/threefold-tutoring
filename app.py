@@ -419,7 +419,29 @@ def register():
     return render_template('register.html')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+
+
+
+@app.route('/subjects')
+def subjects():
+    all_subjects = Subject.query.filter_by(is_active=True).all()
+    return render_template('subjects.html', subjects=all_subjects)
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_us@app.route('/login', methods=['GET', 'POST'])
+
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -436,28 +458,7 @@ def login():
         else:
             return render_template('login.html', error='Invalid credentials')
 
-    return render_template('login.html')
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
-
-
-
-
-@app.route('/subjects')
-def subjects():
-    all_subjects = Subject.query.filter_by(is_active=True).all()
-    return render_template('subjects.html', subjects=all_subje     password = request.form['password']
-
-        user = User.query.filter_by(email=email).first()
-
-        if user and bcrypt.check_password_hash(user.password, password):
-            login_user(user)
+    return render_template('login.html')er(user)
             if user.is_admin:
                 return redirect(url_for('admin'))
             else:
